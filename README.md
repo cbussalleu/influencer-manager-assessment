@@ -1,1 +1,0 @@
-# influencer-manager-assessment
