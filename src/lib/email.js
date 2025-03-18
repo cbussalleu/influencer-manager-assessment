@@ -1,10 +1,20 @@
-import sgMail from '@sendgrid/mail';
-
-// Configura la API key
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+// src/lib/email.js
+import nodemailer from 'nodemailer';
 
 export async function sendInterviewerEmail(result, interviewerEmail) {
   try {
+    // Configurar transporter con OAuth2
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        type: 'OAuth2',
+        user: process.env.GMAIL_USER,
+        clientId: process.env.GMAIL_CLIENT_ID,
+        clientSecret: process.env.GMAIL_CLIENT_SECRET,
+        refreshToken: process.env.GMAIL_REFRESH_TOKEN
+      }
+    });
+
     // Extraer información del resultado
     const { 
       responseId, 
@@ -15,7 +25,7 @@ export async function sendInterviewerEmail(result, interviewerEmail) {
       userEmail
     } = result;
 
-    // Construir resumen de dimensiones
+    // Resto del código para generar el email...
     const dimensionNames = [
       "Gestión de Relaciones con Influencers",
       "Conocimiento de Marketing Digital",
@@ -25,75 +35,51 @@ export async function sendInterviewerEmail(result, interviewerEmail) {
       "Comunicación Estratégica"
     ];
 
-    const dimensionSummaries = dimensionScores.map((score, index) => {
-      return `${dimensionNames[index]}: ${score.toFixed(1)}%`;
-    }).join('\n');
-
-    // Generar preguntas de entrevista recomendadas basadas en puntuaciones
+    // Generar preguntas de entrevista
     const interviewQuestions = generateInterviewQuestions(dimensionScores, dimensionNames);
 
-    // Construir el mensaje de correo electrónico
-    const msg = {
+    // Enviar email
+    const info = await transporter.sendMail({
+      from: `"Assessment Influencer Manager" <${process.env.GMAIL_USER}>`,
       to: interviewerEmail,
-      from: process.env.SENDGRID_FROM_EMAIL, // Email verificado en SendGrid
       subject: `Resultados de assessment: ${userName} para posición de Influencer Manager`,
-      text: `
-Resumen de Assessment para ${userName}
-Email: ${userEmail}
-
-RESUMEN GENERAL:
-Score Total: ${totalScore}%
-Nivel: ${masteryLevel.description}
-
-PUNTUACIONES POR DIMENSIÓN:
-${dimensionSummaries}
-
-PREGUNTAS RECOMENDADAS PARA LA ENTREVISTA:
-${interviewQuestions.join('\n\n')}
-
-Accede a más detalles en: ${process.env.NEXT_PUBLIC_BASE_URL}/results?response_id=${responseId}
-`,
       html: `
-<h2>Resumen de Assessment para ${userName}</h2>
-<p>Email: ${userEmail}</p>
+        <h2>Resumen de Assessment para ${userName}</h2>
+        <p>Email: ${userEmail}</p>
 
-<h3>RESUMEN GENERAL:</h3>
-<p><strong>Score Total:</strong> ${totalScore}%</p>
-<p><strong>Nivel:</strong> ${masteryLevel.description}</p>
+        <h3>RESUMEN GENERAL:</h3>
+        <p><strong>Score Total:</strong> ${totalScore}%</p>
+        <p><strong>Nivel:</strong> ${masteryLevel.description}</p>
 
-<h3>PUNTUACIONES POR DIMENSIÓN:</h3>
-<ul>
-  ${dimensionScores.map((score, index) => `
-    <li><strong>${dimensionNames[index]}:</strong> ${score.toFixed(1)}%</li>
-  `).join('')}
-</ul>
+        <h3>PUNTUACIONES POR DIMENSIÓN:</h3>
+        <ul>
+          ${dimensionScores.map((score, index) => `
+            <li><strong>${dimensionNames[index]}:</strong> ${score.toFixed(1)}%</li>
+          `).join('')}
+        </ul>
 
-<h3>PREGUNTAS RECOMENDADAS PARA LA ENTREVISTA:</h3>
-<ul>
-  ${interviewQuestions.map(question => `
-    <li>${question}</li>
-  `).join('')}
-</ul>
+        <h3>PREGUNTAS RECOMENDADAS PARA LA ENTREVISTA:</h3>
+        <ul>
+          ${interviewQuestions.map(question => `
+            <li>${question}</li>
+          `).join('')}
+        </ul>
 
-<p><a href="${process.env.NEXT_PUBLIC_BASE_URL}/results?response_id=${responseId}">Ver reporte completo</a></p>
-`,
-    };
+        <p><a href="${process.env.NEXT_PUBLIC_BASE_URL}/results?response_id=${responseId}">Ver reporte completo</a></p>
+      `
+    });
 
-    // Enviar el correo electrónico
-    await sgMail.send(msg);
-    console.log('Email enviado al entrevistador');
+    console.log('Email enviado al entrevistador:', info.messageId);
     return true;
   } catch (error) {
     console.error('Error al enviar email:', error);
-    if (error.response) {
-      console.error(error.response.body);
-    }
     return false;
   }
 }
 
 // Función para generar preguntas de entrevista según las fortalezas/debilidades
 function generateInterviewQuestions(scores, dimensionNames) {
+  // El mismo código que tenías antes
   const questions = [];
   
   // Identificar las dimensiones más fuertes y débiles
@@ -119,8 +105,8 @@ function generateInterviewQuestions(scores, dimensionNames) {
   return questions;
 }
 
-// Función para obtener preguntas específicas basadas en la dimensión
 function getSpecificQuestion(dimensionIndex, type) {
+  // El mismo código que tenías antes
   const weakQuestions = [
     "estrategias para cultivar relaciones sólidas con influencers y qué desafíos ha enfrentado en este aspecto",
     "los aspectos del marketing digital que considera más relevantes para campañas con influencers",

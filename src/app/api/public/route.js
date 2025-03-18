@@ -4,7 +4,6 @@ import { createAssessmentResult } from '@/lib/models/assessment';
 import { sendInterviewerEmail } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
 
 export async function POST(request) {
   try {
