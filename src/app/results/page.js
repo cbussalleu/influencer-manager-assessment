@@ -4,7 +4,7 @@ import React, { Suspense, useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from 'next/navigation';
-import { ArrowRight, BookOpen, Download, ExternalLink, BarChart, Users, Brain, Code, Heart, Target } from 'lucide-react';
+import { ArrowRight, BookOpen, Download, ExternalLink, BarChart, Users, Brain, Code, Heart, Target, MessageCircle } from 'lucide-react';
 
 // Radar chart para visualizar las dimensiones
 const RadarChart = ({ scores, labels }) => {
@@ -163,18 +163,18 @@ const DimensionScore = ({ icon: Icon, title, score, description }) => {
 const MasteryLevelCard = ({ level, description, recommendations }) => {
   const getLevelColor = () => {
     switch(level) {
-      case 1: return 'bg-red-100 text-red-800';
-      case 2: return 'bg-orange-100 text-orange-800';
-      case 3: return 'bg-yellow-100 text-yellow-800';
-      case 4: return 'bg-green-100 text-green-800';
-      case 5: return 'bg-blue-100 text-blue-800';
+      case 1: return 'bg-gray-100 text-gray-800';
+      case 2: return 'bg-blue-100 text-blue-800';
+      case 3: return 'bg-green-100 text-green-800';
+      case 4: return 'bg-yellow-100 text-yellow-800';
+      case 5: return 'bg-purple-100 text-purple-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
   
   const getLevelName = () => {
     switch(level) {
-      case 1: return 'Principiante';
+      case 1: return 'Básico';
       case 2: return 'En desarrollo';
       case 3: return 'Competente';
       case 4: return 'Avanzado';
@@ -213,120 +213,139 @@ function Results() {
   const dimensions = [
     {
       icon: BarChart,
-      title: "Capacidades Organizacionales",
-      description: "Alineación estratégica, comprensión organizacional, integración departamental y gestión de recursos."
+      title: "Selección Estratégica de Influencers",
+      description: "Capacidad para identificar influencers alineados con valores de marca, análisis de audiencia y verificación de autenticidad."
+    },
+    {
+      icon: MessageCircle,
+      title: "Gestión de Contenido y Campañas",
+      description: "Desarrollo de briefings, balance entre control y autenticidad, coordinación de campañas e integración multicanal."
     },
     {
       icon: Users,
-      title: "Capacidades Interpersonales",
-      description: "Comunicación interdisciplinaria, facilitación, manejo de conflictos y construcción de relaciones."
-    },
-    {
-      icon: Brain,
-      title: "Capacidades Cognitivas",
-      description: "Comprensión de sistemas complejos, pensamiento abstracto, innovación y adaptabilidad."
-    },
-    {
-      icon: Code,
-      title: "Capacidades Técnicas",
-      description: "Metodologías UCD, prototipado, herramientas digitales y documentación."
+      title: "Comprensión de Audiencias",
+      description: "Análisis de engagement, segmentación, comprensión de contextos culturales y medición de resonancia emocional."
     },
     {
       icon: Heart,
-      title: "Capacidades Emocionales",
-      description: "Empatía, resiliencia, manejo del estrés y gestión emocional."
+      title: "Cultivo de Autenticidad",
+      description: "Transparencia comercial, motivación intrínseca, gestión de percepción y manejo de controversias."
     },
     {
       icon: Target,
-      title: "Capacidades de Liderazgo",
-      description: "Inspiración, decisiones estratégicas, desarrollo de talento y promoción de innovación."
+      title: "Análisis y Optimización",
+      description: "Definición de KPIs, atribución, análisis de datos y mejora continua basada en aprendizajes."
+    },
+    {
+      icon: Code,
+      title: "Adaptabilidad al Ecosistema Digital",
+      description: "Monitoreo de tendencias, experimentación, velocidad de adaptación y visión tecnológica."
+    },
+    {
+      icon: Brain,
+      title: "Gestión de Relaciones",
+      description: "Comunicación efectiva, negociación, desarrollo de relaciones a largo plazo y resolución de conflictos."
     }
   ];
 
   // Recursos recomendados por dimensión
   const recommendedResources = {
-    0: [ // Organizacionales
+    0: [ // Selección Estratégica
       {
-        title: "Business Strategy and Design",
+        title: "Brand Management: Aligning Business, Brand and Behavior",
         type: "curso",
-        link: "https://www.coursera.org/learn/business-strategy-design",
-        description: "Aprende a alinear iniciativas de diseño con objetivos estratégicos de negocio."
+        link: "https://www.coursera.org/learn/brand",
+        description: "Curso de London Business School sobre alineación de valores de marca."
       },
       {
-        title: "The Design of Business",
+        title: "Contagious: How to Build Word of Mouth in the Digital Age",
         type: "libro",
-        link: "https://www.amazon.com/Design-Business-Competitive-Advantage-Innovation/dp/1422177807",
-        description: "Roger Martin explora cómo el pensamiento de diseño transforma las organizaciones."
+        link: "https://www.amazon.com/Contagious-Build-Word-Mouth-Digital/dp/1451686579",
+        description: "Jonah Berger explora qué hace que el contenido sea compartido y valorado."
       }
     ],
-    1: [ // Interpersonales
+    1: [ // Gestión de Contenido
       {
-        title: "Advanced Facilitation Techniques",
+        title: "Brief Development and Creative Evaluation",
         type: "curso",
-        link: "https://www.mural.co/academy",
-        description: "Mejora tus habilidades de facilitación para workshops y sesiones colaborativas."
+        link: "https://www.linkedin.com/learning/brief-development-and-creative-evaluation",
+        description: "Aprende a desarrollar briefings efectivos que equilibran directrices y creatividad."
       },
       {
-        title: "Articulating Design Decisions",
+        title: "The End of Marketing: Humanizing Your Brand in the Age of Social Media and AI",
         type: "libro",
-        link: "https://www.amazon.com/Articulating-Design-Decisions-Communicate-Stakeholders/dp/1491921560",
-        description: "Aprende a comunicar efectivamente decisiones de diseño a stakeholders."
+        link: "https://www.amazon.com/End-Marketing-Humanizing-Brand-Social/dp/0749497572",
+        description: "Carlos Gil explora cómo humanizar marcas en la era digital."
       }
     ],
-    2: [ // Cognitivas
+    2: [ // Comprensión de Audiencias
       {
-        title: "Systems Thinking in Practice",
+        title: "Advanced Digital Marketing Audience Strategy",
         type: "curso",
-        link: "https://www.edx.org/course/systems-thinking-in-practice",
-        description: "Desarrolla tu capacidad para comprender y modelar sistemas complejos."
+        link: "https://www.udemy.com/course/advanced-digital-marketing-audience-strategy/",
+        description: "Estrategias avanzadas para comprender y segmentar audiencias digitales."
       },
       {
-        title: "Thinking in Systems: A Primer",
-        type: "libro",
-        link: "https://www.amazon.com/Thinking-Systems-Donella-H-Meadows/dp/1603580557",
-        description: "El libro clásico de Donella Meadows sobre pensamiento sistémico."
+        title: "Audience Analytics",
+        type: "herramienta",
+        link: "https://analytics.google.com/analytics/academy/",
+        description: "Curso de Google Analytics Academy sobre análisis avanzado de audiencias."
       }
     ],
-    3: [ // Técnicas
+    3: [ // Cultivo de Autenticidad
       {
-        title: "User Experience Research & Design",
+        title: "Digital Ethics",
         type: "curso",
-        link: "https://www.coursera.org/specializations/michiganux",
-        description: "Especialización completa de la Universidad de Michigan sobre UX Research y Design."
+        link: "https://www.linkedin.com/learning/digital-marketing-ethics",
+        description: "Curso sobre ética y transparencia en marketing digital."
       },
       {
-        title: "Universal Methods of Design",
+        title: "Authentic: How to Make a Living By Being Yourself",
         type: "libro",
-        link: "https://www.amazon.com/Universal-Methods-Design-Innovative-Effective/dp/1592537561",
-        description: "Compendio de métodos para investigación, análisis y conceptualización en diseño."
+        link: "https://www.amazon.com/Authentic-Make-Living-Being-Yourself/dp/1529336503",
+        description: "Sarah Staar explora cómo la autenticidad es crucial para el éxito."
       }
     ],
-    4: [ // Emocionales
+    4: [ // Análisis y Optimización
       {
-        title: "Emotional Intelligence in Leadership",
+        title: "Marketing Analytics: Setting and Measuring KPIs",
         type: "curso",
-        link: "https://www.linkedin.com/learning/emotional-intelligence-in-leadership",
-        description: "Aprende a desarrollar y aplicar inteligencia emocional en contextos profesionales."
+        link: "https://www.coursera.org/learn/marketing-analytics",
+        description: "Curso de UC Berkeley sobre definición y medición de KPIs relevantes."
       },
       {
-        title: "Permission to Feel",
-        type: "libro",
-        link: "https://www.amazon.com/Permission-Feel-Unlocking-Emotions-Ourselves/dp/1250212847",
-        description: "Marc Brackett explora cómo entender y gestionar nuestras emociones."
+        title: "Google Analytics Certification",
+        type: "curso",
+        link: "https://analytics.google.com/analytics/academy/",
+        description: "Certificación oficial para análisis de datos de marketing digital."
       }
     ],
-    5: [ // Liderazgo
+    5: [ // Adaptabilidad Digital
       {
-        title: "Design Leadership",
+        title: "Digital Marketing Trends",
         type: "curso",
-        link: "https://www.cooperhewitt.org/design-leadership",
-        description: "Programa enfocado en desarrollar capacidades de liderazgo en diseño."
+        link: "https://www.udacity.com/course/digital-marketing-nanodegree--nd018",
+        description: "Programa de Udacity sobre tendencias emergentes en marketing digital."
       },
       {
-        title: "Radical Candor",
+        title: "Experimentation for Improvement",
+        type: "curso",
+        link: "https://www.coursera.org/learn/experimentation",
+        description: "Universidad de Virginia - Experimentación y pruebas en entornos digitales."
+      }
+    ],
+    6: [ // Gestión de Relaciones
+      {
+        title: "Successful Negotiation: Essential Strategies and Skills",
+        type: "curso",
+        link: "https://www.coursera.org/learn/negotiation-skills",
+        description: "Curso de la Universidad de Michigan sobre técnicas de negociación eficaz."
+      },
+      {
+        title: "Never Split the Difference",
         type: "libro",
-        link: "https://www.amazon.com/Radical-Candor-Revised-Kick-Ass-Humanity/dp/1250235375",
-        description: "Kim Scott presenta un enfoque efectivo para el feedback y desarrollo de equipos."
+        link: "https://www.amazon.com/Never-Split-Difference-Negotiating-Depended/dp/0062407805",
+        description: "Chris Voss comparte técnicas de negociación avanzadas del FBI."
       }
     ]
   };
@@ -391,7 +410,7 @@ function Results() {
                 ? data.dimensionScores 
                 : (data.dimension_scores 
                   ? JSON.parse(data.dimension_scores) 
-                  : [0, 0, 0, 0, 0, 0]),
+                  : [0, 0, 0, 0, 0, 0, 0]),
               recommendations: data.recommendations || 
                 (typeof data.recommendations === 'string' 
                   ? JSON.parse(data.recommendations) 
@@ -399,7 +418,9 @@ function Results() {
                       title: 'Recomendaciones',
                       description: 'No hay recomendaciones disponibles',
                       generalRecommendations: []
-                    })
+                    }),
+              userName: data.userName || data.user_name || '',
+              userEmail: data.userEmail || data.user_email || ''
             };
 
             setResults(processedResults);
@@ -430,6 +451,41 @@ function Results() {
 
     fetchResults();
   }, [searchParams]);
+
+  // Mock data para demostración - en producción esto vendrá de la API
+  // Eliminar este bloque cuando se integre con la API real
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development' && !results && !error) {
+      // Simular carga de datos después de 1 segundo para demostración
+      const timer = setTimeout(() => {
+        const mockData = {
+          totalScore: 64.5,
+          masteryLevel: {
+            level: 4,
+            description: "Avanzado",
+            recommendations: "Tienes un dominio significativo de las capacidades clave de un Influencer Manager. Para alcanzar el nivel experto, enfócate en desarrollar modelos de atribución avanzados y profundizar en la integración estratégica omnicanal."
+          },
+          dimensionScores: [74, 57, 68, 59, 38, 71, 85],
+          userName: "Carlos Rodriguez",
+          userEmail: "carlos@example.com",
+          recommendations: {
+            title: "Plan de Desarrollo Personalizado",
+            description: "Basándonos en tu evaluación, hemos creado un plan de desarrollo focalizado en tus áreas de oportunidad y potenciando tus fortalezas.",
+            generalRecommendations: [
+              "Prioriza el desarrollo de capacidades analíticas avanzadas para mejorar la atribución y ROI",
+              "Fortalece la integración omnicanal de tus campañas con influencers",
+              "Implementa un framework personalizado para evaluar autenticidad",
+              "Aprovecha tu excepcional capacidad de gestión de relaciones para crear programas de embajadores a largo plazo"
+            ]
+          }
+        };
+        setResults(mockData);
+        setLoading(false);
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [results, error]);
 
   if (loading) {
     return (
@@ -496,15 +552,24 @@ function Results() {
 
   const dimensionNames = dimensions.map(d => d.title);
 
+  // Función para determinar el nivel de competencia de cada dimensión
+  const getDimensionLevel = (score) => {
+    if (score <= 20) return { level: 1, name: "Básico" };
+    if (score <= 40) return { level: 2, name: "En desarrollo" };
+    if (score <= 60) return { level: 3, name: "Competente" };
+    if (score <= 80) return { level: 4, name: "Avanzado" };
+    return { level: 5, name: "Experto" };
+  };
+
   return (
-    <div className="min-h-screen font-westmount bg-gray-50">
+    <div className="min-h-screen font-sans bg-gray-50">
       {/* Header con score total */}
       <section className="bg-blue-900 text-white py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-8">
               <h1 className="text-3xl md:text-4xl font-bold mb-4">Resultados de tu Evaluación de Capacidades</h1>
-              <p className="text-xl text-blue-100">Análisis basado en el marco teórico de capacidades y condiciones en diseño de servicios</p>
+              <p className="text-xl text-blue-100">Análisis basado en el marco teórico de 7 dimensiones clave para Influencer Marketing</p>
             </div>
             
             <Card className="bg-white text-blue-900">
@@ -520,15 +585,15 @@ function Results() {
                     <p className="text-gray-600 mb-4">{results.masteryLevel.recommendations}</p>
                     <div className="relative pt-1">
                       <div className="flex mb-2 items-center justify-between">
-                        <div className="text-xs font-semibold text-green-700">
-                          Principiante
+                        <div className="text-xs font-semibold text-gray-700">
+                          Básico
                         </div>
                         <div className="text-xs font-semibold text-blue-700">
                           Experto
                         </div>
                       </div>
                       <div className="overflow-hidden h-2 mb-1 text-xs flex rounded bg-gray-200">
-                        <div style={{ width: `${results.totalScore}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-green-500 to-blue-600"></div>
+                        <div style={{ width: `${results.totalScore}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-gray-500 via-blue-500 to-purple-600"></div>
                       </div>
                     </div>
                   </div>
@@ -581,7 +646,7 @@ function Results() {
                     <CardContent className="p-6">
                       <RadarChart 
                         scores={results.dimensionScores}
-                        labels={dimensionNames}
+                        labels={dimensionNames.map(name => name.split(' ').slice(-1)[0])}
                       />
                     </CardContent>
                   </Card>
@@ -606,7 +671,7 @@ function Results() {
                               return (
                                 <li key={`strength-${idx}`} className="flex items-start gap-2">
                                   <div className="mt-1 w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></div>
-                                  <span><strong>{dimensionNames[idx]}</strong>: {score.toFixed(1)}%</span>
+                                  <span><strong>{dimensionNames[idx]}</strong>: {score.toFixed(1)}% - {getDimensionLevel(score).name}</span>
                                 </li>
                               );
                             }
@@ -624,18 +689,18 @@ function Results() {
                         <h4 className="text-lg font-bold text-orange-600 mb-3">Oportunidades de Mejora</h4>
                         <ul className="space-y-2">
                           {results.dimensionScores.map((score, idx) => {
-                            if (score < 70) {
+                            if (score < 60) {
                               return (
                                 <li key={`opportunity-${idx}`} className="flex items-start gap-2">
                                   <div className="mt-1 w-2 h-2 rounded-full bg-orange-500 flex-shrink-0"></div>
-                                  <span><strong>{dimensionNames[idx]}</strong>: {score.toFixed(1)}%</span>
+                                  <span><strong>{dimensionNames[idx]}</strong>: {score.toFixed(1)}% - {getDimensionLevel(score).name}</span>
                                 </li>
                               );
                             }
                             return null;
                           })}
-                          {results.dimensionScores.filter(score => score < 70).length === 0 && (
-                            <li className="text-gray-500 italic">¡Felicidades! Has alcanzado un nivel avanzado en todas las dimensiones.</li>
+                          {results.dimensionScores.filter(score => score < 60).length === 0 && (
+                            <li className="text-gray-500 italic">¡Felicidades! Has alcanzado al menos nivel Competente en todas las dimensiones.</li>
                           )}
                         </ul>
                       </CardContent>
@@ -659,13 +724,39 @@ function Results() {
                     />
                   ))}
                 </div>
+                
+                <div className="mt-10 bg-gray-50 p-6 rounded-lg border border-gray-200">
+                  <h3 className="text-xl font-bold mb-4">Niveles de Madurez</h3>
+                  <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                    <div className="bg-white p-4 rounded shadow-sm">
+                      <div className="text-gray-600 font-semibold mb-1">Nivel 1: Básico (0-20%)</div>
+                      <p className="text-sm">Enfoque reactivo, procesos mínimos y uso de métricas superficiales</p>
+                    </div>
+                    <div className="bg-white p-4 rounded shadow-sm">
+                      <div className="text-blue-600 font-semibold mb-1">Nivel 2: En desarrollo (21-40%)</div>
+                      <p className="text-sm">Procesos básicos establecidos pero sin metodología consistente</p>
+                    </div>
+                    <div className="bg-white p-4 rounded shadow-sm">
+                      <div className="text-green-600 font-semibold mb-1">Nivel 3: Competente (41-60%)</div>
+                      <p className="text-sm">Sistemas eficientes que equilibran aspectos claves con resultados consistentes</p>
+                    </div>
+                    <div className="bg-white p-4 rounded shadow-sm">
+                      <div className="text-yellow-600 font-semibold mb-1">Nivel 4: Avanzado (61-80%)</div>
+                      <p className="text-sm">Gestión proactiva con enfoques sofisticados y capacidad predictiva</p>
+                    </div>
+                    <div className="bg-white p-4 rounded shadow-sm">
+                      <div className="text-purple-600 font-semibold mb-1">Nivel 5: Experto (81-100%)</div>
+                      <p className="text-sm">Dominio completo con innovación continua y liderazgo transformacional</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
             
             {activeTab === 'recommendations' && (
               <div>
                 <h2 className="text-2xl font-bold mb-6">{results.recommendations.title}</h2>
-                <Card className="mb-8 bg-yellow-50 border-yellow-200">
+                <Card className="mb-8 bg-blue-50 border-blue-200">
                   <CardContent className="p-6">
                     <p className="text-lg mb-6">{results.recommendations.description}</p>
                     <div className="space-y-4">
@@ -691,11 +782,23 @@ function Results() {
                       let specificRecs = [];
                       
                       if (score < 40) {
-                        specificRecs = ["Establece un plan de formación fundamental", "Busca mentores en esta área", "Comienza con proyectos pequeños supervisados"];
+                        specificRecs = [
+                          "Establece un plan de formación fundamental en esta área",
+                          "Busca mentores especializados en esta dimensión",
+                          "Comienza con proyectos pequeños supervisados para ganar experiencia"
+                        ];
                       } else if (score < 70) {
-                        specificRecs = ["Profundiza en aspectos específicos", "Busca proyectos donde puedas desarrollar estas capacidades", "Considera formación especializada"];
+                        specificRecs = [
+                          "Profundiza en aspectos específicos de esta dimensión",
+                          "Busca proyectos donde puedas desarrollar estas capacidades",
+                          "Considera formación especializada para alcanzar nivel avanzado"
+                        ];
                       } else {
-                        specificRecs = ["Comparte tu conocimiento con otros", "Busca innovar en esta área", "Considera liderar iniciativas"];
+                        specificRecs = [
+                          "Comparte tu conocimiento con otros profesionales",
+                          "Busca innovar y desarrollar nuevos enfoques en esta área",
+                          "Considera liderar iniciativas o crear contenido formativo"
+                        ];
                       }
                       
                       return (
@@ -725,17 +828,27 @@ function Results() {
                 
                 <div className="mb-8">
                   <p className="text-lg mb-4">
-                    Basado en tus resultados, hemos seleccionado recursos específicos que te ayudarán a desarrollar tus capacidades profesionales en diseño de servicios.
+                    Basado en tus resultados, hemos seleccionado recursos específicos que te ayudarán a desarrollar tus capacidades profesionales como Influencer Manager.
                   </p>
                 </div>
                 
+                {/* Priorizar dimensiones con puntuación baja */}
                 {dimensions.map((dimension, idx) => {
-                  // Mostrar recursos solo para dimensiones con puntuación menor a 70%
-                  if (results.dimensionScores[idx] >= 70) return null;
+                  // Mostrar recursos con énfasis en dimensiones con puntuación menor a 70%
+                  const priorityOrder = results.dimensionScores[idx] < 60 ? "alta" :
+                                        results.dimensionScores[idx] < 70 ? "media" : "baja";
                   
                   return (
                     <div key={`res-section-${idx}`} className="mb-8">
-                      <h3 className="text-xl font-bold mb-4">{dimension.title}</h3>
+                      <div className="flex items-center mb-4">
+                        <h3 className="text-xl font-bold mr-3">{dimension.title}</h3>
+                        {priorityOrder === "alta" && (
+                          <span className="bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-0.5 rounded">Prioridad Alta</span>
+                        )}
+                        {priorityOrder === "media" && (
+                          <span className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded">Prioridad Media</span>
+                        )}
+                      </div>
                       <div className="grid md:grid-cols-2 gap-4">
                         {(recommendedResources[idx] || []).map((resource, resIdx) => (
                           <ResourceCard 
@@ -751,29 +864,19 @@ function Results() {
                   );
                 })}
                 
-                {/* Si todas las dimensiones tienen puntuación mayor a 70% */}
-                {dimensions.every((_, idx) => results.dimensionScores[idx] >= 70) && (
-                  <div className="text-center p-8 bg-blue-50 rounded-lg">
-                    <h3 className="text-xl font-bold mb-4 text-blue-800">¡Felicidades por tu alto nivel!</h3>
-                    <p className="text-gray-700 mb-4">
-                      Has alcanzado un excelente nivel en todas las dimensiones evaluadas. Te recomendamos enfocarte en:
-                    </p>
-                    <ul className="text-left inline-block mx-auto mb-6">
-                      <li className="flex items-start gap-2 mb-3">
-                        <div className="mt-1 w-2 h-2 rounded-full bg-blue-600 flex-shrink-0"></div>
-                        <span>Compartir tu conocimiento y mentorizar a otros profesionales</span>
-                      </li>
-                      <li className="flex items-start gap-2 mb-3">
-                        <div className="mt-1 w-2 h-2 rounded-full bg-blue-600 flex-shrink-0"></div>
-                        <span>Liderar iniciativas de innovación en tu organización</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <div className="mt-1 w-2 h-2 rounded-full bg-blue-600 flex-shrink-0"></div>
-                        <span>Explorar nuevos enfoques y metodologías emergentes</span>
-                      </li>
-                    </ul>
-                  </div>
-                )}
+                <div className="mt-8 bg-blue-50 p-6 rounded-lg">
+                  <h3 className="text-xl font-bold mb-3 text-blue-800">Plan de Desarrollo Personalizado</h3>
+                  <p className="mb-4">
+                    Para maximizar tu crecimiento profesional, te recomendamos:
+                  </p>
+                  <ol className="space-y-2 ml-5 list-decimal">
+                    <li className="ml-2">Identifica 2-3 dimensiones prioritarias basadas en tus resultados</li>
+                    <li className="ml-2">Selecciona recursos específicos para cada una de estas dimensiones</li>
+                    <li className="ml-2">Establece objetivos SMART para tu desarrollo profesional</li>
+                    <li className="ml-2">Busca un mentor especializado en marketing de influencers</li>
+                    <li className="ml-2">Revisa tu progreso cada 3-6 meses</li>
+                  </ol>
+                </div>
               </div>
             )}
             
