@@ -2,6 +2,14 @@ import sgMail from '@sendgrid/mail';
 
 export async function sendInterviewerEmail(result, interviewerEmail) {
   try {
+    // Log more details about environment variables
+    console.log('Environment check:', {
+      hasSendGridKey: !!process.env.SENDGRID_API_KEY,
+      keySample: process.env.SENDGRID_API_KEY ? `${process.env.SENDGRID_API_KEY.substring(0, 3)}...${process.env.SENDGRID_API_KEY.substring(process.env.SENDGRID_API_KEY.length - 3)}` : 'No key',
+      emailSender: process.env.SENDGRID_SENDER_EMAIL || 'notifications@influencer-assessment.com',
+      baseUrl: process.env.NEXT_PUBLIC_BASE_URL || ''
+    });
+
     // Configurar la API key de SendGrid
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -81,11 +89,18 @@ export async function sendInterviewerEmail(result, interviewerEmail) {
 
     return true;
   } catch (error) {
+    // Enhanced error logging
     console.error('Error sending email with SendGrid:', {
       message: error.message,
-      stack: error.stack,
+      code: error.code,
       responseBody: error.response ? JSON.stringify(error.response.body) : 'No response',
-      fullError: error
+      stack: error.stack.split('\n').slice(0, 3).join('\n'),
+      // Add detailed auth error info
+      authError: error.code === 'EAUTH' ? {
+        command: error.command,
+        responseCode: error.responseCode,
+        response: error.response,
+      } : 'Not an auth error'
     });
     
     return false;
