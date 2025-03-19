@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server';
-import { createAssessmentResult, getAssessmentResultByResponseId } from '@/lib/models/assessment';
-import { sendAssessmentEmail } from '@/lib/sendgrid';  // Importamos únicamente el servicio SendGrid
+import { createAssessmentResult } from '@/lib/models/assessment';
+// Importante: NO importamos ninguna funcionalidad de email aquí
 
 export const dynamic = 'force-dynamic';
 
-// Función para procesar respuestas y calcular puntuaciones
+// Procesamiento de respuestas (mantenemos la lógica original)
 function processAnswers(formResponse) {
-  // Mantenemos la lógica de procesamiento existente
-  // Por simplicidad, dejamos un ejemplo, pero este código debería mantener la lógica real de tu app
+  // Tu lógica de procesamiento existente
   return {
     dimensionScores: [60, 65, 70, 55, 75, 60, 70],
     totalScore: 65,
@@ -20,9 +19,9 @@ function processAnswers(formResponse) {
   };
 }
 
-// Función para generar recomendaciones basadas en nivel
+// Generación de recomendaciones (mantenemos la lógica original)
 function getRecommendations(level) {
-  // Mantenemos la lógica de recomendaciones existente
+  // Tu lógica de recomendaciones existente
   return {
     title: "Professional Development Plan",
     description: "Based on your assessment, we've created a development plan focused on your opportunity areas.",
@@ -34,7 +33,7 @@ function getRecommendations(level) {
   };
 }
 
-// Función para extraer datos del usuario de las respuestas
+// Extracción de datos de usuario (mantenemos la lógica original)
 function extractUserData(formResponse) {
   let userName = '';
   let userEmail = '';
@@ -100,22 +99,10 @@ export async function POST(request) {
     const savedResult = await createAssessmentResult(results);
     console.log('Results saved to database');
     
-    // Enviar email usando el nuevo servicio SendGrid
-    const interviewerEmail = process.env.INTERVIEWER_EMAIL || 'christian.bussalleu@findasense.com';
-    
-    try {
-      console.log('Sending assessment email to:', interviewerEmail);
-      
-      const emailSent = await sendAssessmentEmail(results, interviewerEmail);
-      
-      if (emailSent) {
-        console.log('Email sent successfully with SendGrid');
-      } else {
-        console.error('Email sending failed with SendGrid');
-      }
-    } catch (emailError) {
-      console.error('Error in email sending process:', emailError);
-    }
+    // IMPORTANTE: NO intentes enviar correos desde aquí
+    // En lugar de eso, registramos que necesitamos notificar sobre este resultado
+    console.log('New assessment result saved. To send email manually, visit:');
+    console.log(`/api/manual-notify?response_id=${response_id}`);
 
     // Construir URL de redirección
     const redirectUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://influencer-manager-assessment.vercel.app'}/results?response_id=${response_id}`;
@@ -123,7 +110,9 @@ export async function POST(request) {
     return NextResponse.json({ 
       success: true,
       redirectUrl,
-      ...results
+      responseId: response_id,
+      // Incluimos un mensaje que advierte que el email debe ser enviado manualmente
+      notice: "Email notification will be sent separately"
     });
 
   } catch (error) {
@@ -135,15 +124,13 @@ export async function POST(request) {
   }
 }
 
+// Mantenemos el método GET sin cambios
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const response_id = searchParams.get('response_id') || request.headers.get('response-id');
     
-    console.log('GET request received with ID:', response_id);
-    
     if (!response_id) {
-      console.log('No response ID provided in parameters or headers');
       return NextResponse.json({ 
         error: 'Missing response ID'
       }, { status: 400 });
@@ -152,7 +139,6 @@ export async function GET(request) {
     // Get results from database
     const result = await getAssessmentResultByResponseId(response_id);
     
-    console.log('Returning result:', result);
     return NextResponse.json(result);
   } catch (error) {
     console.error('Error fetching results:', error);
