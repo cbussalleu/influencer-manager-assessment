@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 
 export async function sendInterviewerEmail(result, interviewerEmail) {
   try {
-    // Configurar transporter con OAuth2
+    // Configure transporter with OAuth2
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -15,7 +15,7 @@ export async function sendInterviewerEmail(result, interviewerEmail) {
       }
     });
 
-    // Extraer información del resultado
+    // Extract information from result
     const { 
       responseId, 
       totalScore, 
@@ -25,104 +25,105 @@ export async function sendInterviewerEmail(result, interviewerEmail) {
       userEmail
     } = result;
 
-    // Resto del código para generar el email...
+    // Rest of the code to generate the email...
     const dimensionNames = [
-      "Gestión de Relaciones con Influencers",
-      "Conocimiento de Marketing Digital",
-      "Análisis y Métricas",
-      "Negociación y Contratos",
-      "Gestión de Campañas",
-      "Comunicación Estratégica"
+      "Strategic Influencer Selection",
+      "Content and Campaign Management",
+      "Audience Understanding",
+      "Authenticity Cultivation",
+      "Analysis and Optimization",
+      "Digital Ecosystem Adaptability",
+      "Relationship Management"
     ];
 
-    // Generar preguntas de entrevista
+    // Generate interview questions
     const interviewQuestions = generateInterviewQuestions(dimensionScores, dimensionNames);
 
-    // Enviar email
+    // Send email
     const info = await transporter.sendMail({
-      from: `"Assessment Influencer Manager" <${process.env.GMAIL_USER}>`,
+      from: `"Influencer Manager Assessment" <${process.env.GMAIL_USER}>`,
       to: interviewerEmail,
-      subject: `Resultados de assessment: ${userName} para posición de Influencer Manager`,
+      subject: `Assessment Results: ${userName} for Influencer Manager Position`,
       html: `
-        <h2>Resumen de Assessment para ${userName}</h2>
+        <h2>Assessment Summary for ${userName}</h2>
         <p>Email: ${userEmail}</p>
 
-        <h3>RESUMEN GENERAL:</h3>
-        <p><strong>Score Total:</strong> ${totalScore}%</p>
-        <p><strong>Nivel:</strong> ${masteryLevel.description}</p>
+        <h3>OVERALL SUMMARY:</h3>
+        <p><strong>Total Score:</strong> ${totalScore}%</p>
+        <p><strong>Level:</strong> ${masteryLevel.description}</p>
 
-        <h3>PUNTUACIONES POR DIMENSIÓN:</h3>
+        <h3>DIMENSION SCORES:</h3>
         <ul>
           ${dimensionScores.map((score, index) => `
             <li><strong>${dimensionNames[index]}:</strong> ${score.toFixed(1)}%</li>
           `).join('')}
         </ul>
 
-        <h3>PREGUNTAS RECOMENDADAS PARA LA ENTREVISTA:</h3>
+        <h3>RECOMMENDED INTERVIEW QUESTIONS:</h3>
         <ul>
           ${interviewQuestions.map(question => `
             <li>${question}</li>
           `).join('')}
         </ul>
 
-        <p><a href="${process.env.NEXT_PUBLIC_BASE_URL}/results?response_id=${responseId}">Ver reporte completo</a></p>
+        <p><a href="${process.env.NEXT_PUBLIC_BASE_URL}/results?response_id=${responseId}">View full report</a></p>
       `
     });
 
-    console.log('Email enviado al entrevistador:', info.messageId);
+    console.log('Email sent to interviewer:', info.messageId);
     return true;
   } catch (error) {
-    console.error('Error al enviar email:', error);
+    console.error('Error sending email:', error);
     return false;
   }
 }
 
-// Función para generar preguntas de entrevista según las fortalezas/debilidades
+// Function to generate interview questions based on strengths/weaknesses
 function generateInterviewQuestions(scores, dimensionNames) {
-  // El mismo código que tenías antes
+  // Same code as before
   const questions = [];
   
-  // Identificar las dimensiones más fuertes y débiles
+  // Identify strongest and weakest dimensions
   const indexedScores = scores.map((score, index) => ({ score, index }));
   const sortedScores = [...indexedScores].sort((a, b) => a.score - b.score);
   
-  // Dimensiones más débiles (3 más bajas)
+  // Weakest dimensions (3 lowest)
   const weakDimensions = sortedScores.slice(0, 3);
   
-  // Dimensiones más fuertes (2 más altas)
+  // Strongest dimensions (2 highest)
   const strongDimensions = sortedScores.slice(-2).reverse();
   
-  // Preguntas para dimensiones débiles
+  // Questions for weak dimensions
   weakDimensions.forEach(({ score, index }) => {
-    questions.push(`${dimensionNames[index]} (${score.toFixed(1)}%): Indague sobre su experiencia con ${getSpecificQuestion(index, 'weak')}`);
+    questions.push(`${dimensionNames[index]} (${score.toFixed(1)}%): Inquire about their experience with ${getSpecificQuestion(index, 'weak')}`);
   });
   
-  // Preguntas para dimensiones fuertes
+  // Questions for strong dimensions
   strongDimensions.forEach(({ score, index }) => {
-    questions.push(`${dimensionNames[index]} (${score.toFixed(1)}%): Pida que comparta un logro significativo relacionado con ${getSpecificQuestion(index, 'strong')}`);
+    questions.push(`${dimensionNames[index]} (${score.toFixed(1)}%): Ask them to share a significant achievement related to ${getSpecificQuestion(index, 'strong')}`);
   });
   
   return questions;
 }
 
 function getSpecificQuestion(dimensionIndex, type) {
-  // El mismo código que tenías antes
+  // Same code as before, but translated to English
   const weakQuestions = [
-    "estrategias para cultivar relaciones sólidas con influencers y qué desafíos ha enfrentado en este aspecto",
-    "los aspectos del marketing digital que considera más relevantes para campañas con influencers",
-    "herramientas analíticas que ha usado para medir el impacto de campañas con influencers",
-    "experiencias difíciles en negociación de contratos con influencers y cómo las resolvió",
-    "un proyecto donde tuvo que ajustar una campaña en progreso y qué aprendió",
-    "situaciones donde tuvo que manejar comunicaciones complejas entre marcas e influencers"
+    "strategies for cultivating solid relationships with influencers and what challenges they've faced in this aspect",
+    "the aspects of digital marketing they consider most relevant for influencer campaigns",
+    "analytical tools they've used to measure the impact of influencer campaigns",
+    "difficult experiences in negotiating contracts with influencers and how they resolved them",
+    "a project where they had to adjust an ongoing campaign and what they learned",
+    "situations where they had to handle complex communications between brands and influencers"
   ];
   
   const strongQuestions = [
-    "cómo ha construido relaciones duraderas con influencers clave",
-    "cómo ha integrado tendencias de marketing digital en sus estrategias de influencers",
-    "cómo utiliza datos para optimizar campañas y demostrar ROI",
-    "un caso donde su habilidad de negociación generó valor añadido",
-    "una campaña particularmente exitosa que haya gestionado y factores clave",
-    "cómo ha manejado la comunicación en situaciones de crisis o sensibles"
+    "how they've built lasting relationships with key influencers",
+    "how they've integrated digital marketing trends into their influencer strategies",
+    "how they use data to optimize campaigns and demonstrate ROI",
+    "a case where their negotiation skills generated added value",
+    "a particularly successful campaign they've managed and key factors",
+    "how they've handled communication in crisis or sensitive situations"
   ];
   
   return type === 'weak' ? weakQuestions[dimensionIndex] : strongQuestions[dimensionIndex];
