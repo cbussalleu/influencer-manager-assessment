@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@sendgrid/mail": "^7.7.0",
     "@radix-ui/react-slot": "^1.0.2",
     "@swc/core": "^1.2.173",
     "@typeform/embed-react": "^2.31.0",
@@ -24,7 +25,6 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tailwind-merge": "^2.2.1",
-    "tailwindcss": "^3.4.1",
-    "@sendgrid/mail": "^7.7.0"
+    "tailwindcss": "^3.4.1"
   }
 }
