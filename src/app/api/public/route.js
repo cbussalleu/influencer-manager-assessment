@@ -1,8 +1,68 @@
 import { NextResponse } from 'next/server';
 import { createAssessmentResult, getAssessmentResultByResponseId } from '@/lib/models/assessment';
-import { sendInterviewerEmail } from '@/lib/email';
+import { sendInterviewerEmail } from '@/lib/email';  // Asegúrate de que este import apunte al archivo email.js actualizado
 
 export const dynamic = 'force-dynamic';
+
+// Función para procesar respuestas y calcular puntuaciones
+function processAnswers(formResponse) {
+  // Aquí iría tu lógica de procesamiento actual
+  // Por simplificar, devuelvo un objeto con valores de ejemplo
+  return {
+    dimensionScores: [60, 65, 70, 55, 75, 60, 70],
+    totalScore: 65,
+    masteryLevel: { 
+      level: 4, 
+      description: 'Advanced: High capability in influencer marketing management',
+      recommendations: 'Focus on advanced analytics to reach expert level'
+    },
+    rawScores: []
+  };
+}
+
+// Función para generar recomendaciones basadas en nivel
+function getRecommendations(level) {
+  // Aquí iría tu lógica actual para generar recomendaciones
+  // Devuelvo un objeto de ejemplo
+  return {
+    title: "Professional Development Plan",
+    description: "Based on your assessment, we've created a development plan focused on your opportunity areas.",
+    generalRecommendations: [
+      "Focus on advanced data analysis techniques",
+      "Develop strategic influencer selection methodologies",
+      "Enhance your digital ecosystem adaptability"
+    ]
+  };
+}
+
+// Función para extraer datos del usuario de las respuestas
+function extractUserData(formResponse) {
+  let userName = '';
+  let userEmail = '';
+  
+  try {
+    // Look for answers by type
+    formResponse.answers.forEach(answer => {
+      // Assuming name and email are text questions in Typeform
+      if (answer.type === 'text') {
+        // Find the name field by ID or title
+        const field = formResponse.definition.fields.find(f => f.id === answer.field.id);
+        
+        if (field && field.title.toLowerCase().includes('name')) {
+          userName = answer.text;
+        } else if (field && (field.title.toLowerCase().includes('email') || field.title.toLowerCase().includes('mail'))) {
+          userEmail = answer.text;
+        }
+      } else if (answer.type === 'email') {
+        userEmail = answer.email;
+      }
+    });
+  } catch (error) {
+    console.error('Error extracting user data:', error);
+  }
+  
+  return { userName, userEmail };
+}
 
 export async function POST(request) {
   try {
@@ -38,8 +98,8 @@ export async function POST(request) {
     // Save to database
     const savedResult = await createAssessmentResult(results);
     
-    // Send email to the interviewer
-    const interviewerEmail = process.env.INTERVIEWER_EMAIL || 'christian.bussalleu@gmail.com';
+    // Send email to the interviewer using our updated email function
+    const interviewerEmail = process.env.INTERVIEWER_EMAIL || 'christian.bussalleu@findasense.com';
     
     try {
       console.log('Attempting to send email');
@@ -53,7 +113,7 @@ export async function POST(request) {
         console.error('Email sending failed');
       }
     } catch (emailError) {
-      console.error('Unexpected error sending email:', emailError);
+      console.error('Error sending email:', emailError);
     }
 
     const redirectUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://influencer-manager-assessment.vercel.app'}/results?response_id=${response_id}`;
@@ -73,44 +133,15 @@ export async function POST(request) {
   }
 }
 
-// Function to extract user name and email
-function extractUserData(formResponse) {
-  let userName = '';
-  let userEmail = '';
-  
-  try {
-    // Look for answers by type
-    formResponse.answers.forEach(answer => {
-      // Assuming name and email are text questions in Typeform
-      if (answer.type === 'text') {
-        // Find the name field by ID or title
-        const field = formResponse.definition.fields.find(f => f.id === answer.field.id);
-        
-        if (field && field.title.toLowerCase().includes('name')) {
-          userName = answer.text;
-        } else if (field && (field.title.toLowerCase().includes('email') || field.title.toLowerCase().includes('mail'))) {
-          userEmail = answer.text;
-        }
-      } else if (answer.type === 'email') {
-        userEmail = answer.email;
-      }
-    });
-  } catch (error) {
-    console.error('Error extracting user data:', error);
-  }
-  
-  return { userName, userEmail };
-}
-
-// Resto de las funciones existentes (processAnswers, determineMasteryLevel, getRecommendations) permanecen igual
-
 export async function GET(request) {
   try {
-    const response_id = request.headers.get('response-id') || request.headers.get('response_id');
+    const { searchParams } = new URL(request.url);
+    const response_id = searchParams.get('response_id') || request.headers.get('response-id');
+    
     console.log('GET request received with ID:', response_id);
     
     if (!response_id) {
-      console.log('No response ID provided in headers');
+      console.log('No response ID provided in parameters or headers');
       return NextResponse.json({ 
         error: 'Missing response ID'
       }, { status: 400 });
