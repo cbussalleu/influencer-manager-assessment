@@ -2,12 +2,12 @@ import sgMail from '@sendgrid/mail';
 
 export async function sendInterviewerEmail(result, interviewerEmail) {
   try {
-    // Configurar la API key de SendGrid de manera simple
+    // Configurar la API key de SendGrid
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
     // Verificar datos del resultado
     if (!result) {
-      console.error('Invalid result data: result is undefined');
+      console.error('Datos de resultado inválidos: resultado es undefined');
       return false;
     }
 
@@ -20,13 +20,13 @@ export async function sendInterviewerEmail(result, interviewerEmail) {
       description: 'No recommendations available',
       generalRecommendations: []
     };
-    const responseId = result.responseId || 'N/A';
+    const responseId = result.responseId || result.response_id || 'N/A';
 
     // Construir el mensaje de correo
     const msg = {
       to: interviewerEmail,
       from: {
-        email: process.env.SENDGRID_SENDER_EMAIL || 'notifications@yourdomain.com',
+        email: process.env.SENDGRID_SENDER_EMAIL || 'notifications@influencer-assessment.com',
         name: 'Influencer Marketing Assessment'
       },
       subject: `Assessment Results: ${userName} for Influencer Manager Position`,
@@ -61,18 +61,31 @@ export async function sendInterviewerEmail(result, interviewerEmail) {
       `
     };
 
-    // Intentar enviar el correo
-    await sgMail.send(msg);
+    // Log detallado antes de enviar
+    console.log('Sending email with payload:', {
+      to: msg.to,
+      subject: msg.subject,
+      userName,
+      totalScore,
+      masteryLevelDescription: masteryLevel.description
+    });
+
+    // Enviar el correo
+    const [response] = await sgMail.send(msg);
     
     console.log('Email sent successfully to:', interviewerEmail);
+    console.log('SendGrid response:', {
+      statusCode: response.statusCode,
+      headers: response.headers
+    });
+
     return true;
   } catch (error) {
-    // Log detallado del error
-    console.error('Detailed SendGrid Email Error:', {
+    console.error('Error sending email with SendGrid:', {
       message: error.message,
       stack: error.stack,
       responseBody: error.response ? JSON.stringify(error.response.body) : 'No response',
-      fullError: JSON.stringify(error)
+      fullError: error
     });
     
     return false;
