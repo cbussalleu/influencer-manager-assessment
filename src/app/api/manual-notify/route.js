@@ -1,31 +1,60 @@
 import { NextResponse } from 'next/server';
 import { getAssessmentResultByResponseId } from '@/lib/models/assessment';
-import { sendAssessmentEmail } from '@/lib/sendgrid';
+import { sendDirectEmail } from '@/lib/raw-sendgrid';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const response_id = searchParams.get('response_id');
+    
+    // Obtener el ID de respuesta - puede venir de varios parámetros
+    let response_id = searchParams.get('response_id');
+    
+    // Verificar si necesitamos redireccionar después (para uso con Typeform)
+    const redirect = searchParams.get('redirect') === 'true';
+    
+    console.log('Manual notify called with params:', {
+      response_id,
+      redirect,
+      allParams: Object.fromEntries(searchParams.entries())
+    });
+    
+    // Si aún no tenemos ID, es un error
+    if (!response_id) {
+      console.error('No response ID provided in parameters');
+      
+      if (redirect) {
+        // Si se pidió redirección, vamos a la página principal
+        return NextResponse.redirect(new URL('/', request.url));
+      } else {
+        // Si es una llamada API normal, devolvemos error
+        return NextResponse.json({ 
+          success: false,
+          error: 'Missing response_id parameter',
+          params: Object.fromEntries(searchParams.entries())
+        }, { status: 400 });
+      }
+    }
     
     console.log('Manual notification requested for response ID:', response_id);
-    
-    if (!response_id) {
-      return NextResponse.json({ 
-        success: false,
-        error: 'Missing response_id parameter'
-      }, { status: 400 });
-    }
 
     // Buscar el resultado en la base de datos
     const result = await getAssessmentResultByResponseId(response_id);
     
     if (!result) {
-      return NextResponse.json({ 
-        success: false,
-        error: 'Assessment result not found'
-      }, { status: 404 });
+      console.log('Assessment result not found for ID:', response_id);
+      
+      if (redirect) {
+        // Si se pidió redirección, vamos a resultados con mensaje de error
+        return NextResponse.redirect(new URL(`/?error=results-not-found&id=${response_id}`, request.url));
+      } else {
+        // Si es una llamada API normal, devolvemos error
+        return NextResponse.json({ 
+          success: false,
+          error: 'Assessment result not found'
+        }, { status: 404 });
+      }
     }
     
     console.log('Found assessment result:', { 
@@ -34,18 +63,34 @@ export async function GET(request) {
       createdAt: result.createdAt
     });
 
-    // Enviar email usando SendGrid
+    // Enviar email usando el método directo
     const interviewerEmail = process.env.INTERVIEWER_EMAIL || 'christian.bussalleu@findasense.com';
     
-    console.log('Attempting to send manual notification to:', interviewerEmail);
+    console.log('Attempting to send notification to:', interviewerEmail);
     
-    const emailResult = await sendAssessmentEmail(result, interviewerEmail);
+    try {
+      const emailResult = await sendDirectEmail(result, interviewerEmail);
+      
+      if (emailResult) {
+        console.log('Notification email sent successfully');
+      } else {
+        console.error('Failed to send notification email');
+      }
+    } catch (emailError) {
+      console.error('Error sending notification email:', emailError);
+    }
     
-    if (emailResult) {
-      console.log('Manual notification email sent successfully');
+    // Si se pidió redirección, enviamos al usuario a la página de resultados
+    if (redirect) {
+      const resultsUrl = `/results?response_id=${response_id}`;
+      console.log('Redirecting to results page:', resultsUrl);
+      
+      return NextResponse.redirect(new URL(resultsUrl, request.url));
+    } else {
+      // Respuesta normal de API para uso programático
       return NextResponse.json({ 
         success: true,
-        message: 'Notification email sent successfully',
+        message: 'Notification email sent',
         to: interviewerEmail,
         assessmentInfo: {
           responseId: result.responseId,
@@ -53,22 +98,21 @@ export async function GET(request) {
           totalScore: result.totalScore
         }
       });
-    } else {
-      console.error('Failed to send manual notification email');
-      return NextResponse.json({ 
-        success: false,
-        error: 'Failed to send notification email',
-        details: 'Check server logs for more information'
-      }, { status: 500 });
     }
     
   } catch (error) {
     console.error('Error in manual notification:', error);
     
-    return NextResponse.json({ 
-      success: false,
-      error: 'Error processing manual notification',
-      details: error.message
-    }, { status: 500 });
+    if (searchParams.get('redirect') === 'true') {
+      // Si se pidió redirección, vamos a la página principal
+      return NextResponse.redirect(new URL('/', request.url));
+    } else {
+      // Respuesta normal de API
+      return NextResponse.json({ 
+        success: false,
+        error: 'Error processing notification',
+        details: error.message
+      }, { status: 500 });
+    }
   }
 }
