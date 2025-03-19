@@ -1,14 +1,13 @@
-import { sql } from '@vercel/postgres';
+import { createClient } from '@vercel/postgres';
 
 export async function createAssessmentResult(results) {
   try {
+    // Crear un cliente de Postgres en lugar de usar sql directamente
+    const client = createClient();
+    await client.connect();
+    
     // Debug log to see credentials being used
-    console.log('Database connection info:', {
-      host: process.env.POSTGRES_HOST || 'not set',
-      user: process.env.POSTGRES_USER || 'not set',
-      database: process.env.POSTGRES_DATABASE || 'not set',
-      passwordSet: process.env.POSTGRES_PASSWORD ? 'yes' : 'no'
-    });
+    console.log('Database connection established successfully');
     
     const {
       response_id,
@@ -71,7 +70,11 @@ export async function createAssessmentResult(results) {
       userEmail || ''
     ];
     
-    const result = await sql.query(query, values);
+    const result = await client.query(query, values);
+    
+    // Cerrar la conexión después de usarla
+    await client.end();
+    
     return result.rows[0];
   } catch (error) {
     console.error('Detailed error creating assessment result:', {
@@ -90,6 +93,10 @@ export async function getAssessmentResultByResponseId(responseId) {
     }
     console.log('Looking for results with responseId:', responseId);
     
+    // Crear un cliente de Postgres
+    const client = createClient();
+    await client.connect();
+    
     // Updated to include user_name and user_email
     const query = `
       SELECT 
@@ -107,7 +114,7 @@ export async function getAssessmentResultByResponseId(responseId) {
       LIMIT 1
     `;
     
-    const result = await sql.query(query, [responseId]);
+    const result = await client.query(query, [responseId]);
     
     // Function to safely parse JSON
     const safeParseJSON = (input, defaultValue = null) => {
@@ -126,6 +133,9 @@ export async function getAssessmentResultByResponseId(responseId) {
         return defaultValue;
       }
     };
+    
+    // Cerrar la conexión después de usarla
+    await client.end();
 
     if (!result.rows.length) {
       return null;
