@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { createAssessmentResult, getAssessmentResultByResponseId } from '@/lib/models/assessment';
-import { sendInterviewerEmail } from '@/lib/email';  // Asegúrate de que este import apunte al archivo email.js actualizado
+import { sendAssessmentEmail } from '@/lib/sendgrid';  // Importamos el nuevo servicio
 
 export const dynamic = 'force-dynamic';
 
 // Función para procesar respuestas y calcular puntuaciones
+// Asumimos que esta función ya existía y funciona correctamente
 function processAnswers(formResponse) {
   // Aquí iría tu lógica de procesamiento actual
   // Por simplificar, devuelvo un objeto con valores de ejemplo
@@ -21,6 +22,7 @@ function processAnswers(formResponse) {
 }
 
 // Función para generar recomendaciones basadas en nivel
+// Asumimos que esta función ya existía y funciona correctamente
 function getRecommendations(level) {
   // Aquí iría tu lógica actual para generar recomendaciones
   // Devuelvo un objeto de ejemplo
@@ -66,6 +68,9 @@ function extractUserData(formResponse) {
 
 export async function POST(request) {
   try {
+    // Log completo para depuración
+    console.log('Webhook POST request received');
+    
     const data = await request.json();
     console.log('Webhook received data:', JSON.stringify(data, null, 2));
     
@@ -97,27 +102,29 @@ export async function POST(request) {
 
     // Save to database
     const savedResult = await createAssessmentResult(results);
+    console.log('Results saved to database');
     
-    // Send email to the interviewer using our updated email function
+    // Send email using our new SendGrid service
     const interviewerEmail = process.env.INTERVIEWER_EMAIL || 'christian.bussalleu@findasense.com';
     
     try {
-      console.log('Attempting to send email');
-      console.log('Interviewer Email:', interviewerEmail);
+      console.log('Using new SendGrid service to send email to:', interviewerEmail);
       
-      const emailSent = await sendInterviewerEmail(results, interviewerEmail);
+      const emailSent = await sendAssessmentEmail(results, interviewerEmail);
       
       if (emailSent) {
-        console.log('Email sent successfully');
+        console.log('Email sent successfully with new SendGrid service');
       } else {
-        console.error('Email sending failed');
+        console.error('Email sending failed with new SendGrid service');
       }
     } catch (emailError) {
-      console.error('Error sending email:', emailError);
+      console.error('Error in email sending block:', emailError);
     }
 
+    // Construir URL de redirección para el cliente
     const redirectUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://influencer-manager-assessment.vercel.app'}/results?response_id=${response_id}`;
 
+    // Devolver respuesta al cliente
     return NextResponse.json({ 
       success: true,
       redirectUrl,
@@ -133,6 +140,7 @@ export async function POST(request) {
   }
 }
 
+// Método GET para obtener resultados de la evaluación
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
