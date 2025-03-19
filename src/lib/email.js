@@ -2,12 +2,12 @@ import sgMail from '@sendgrid/mail';
 
 export async function sendInterviewerEmail(result, interviewerEmail) {
   try {
-    // Configurar la API key de SendGrid
+    // Configurar la API key de SendGrid de manera simple
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
     // Verificar datos del resultado
     if (!result) {
-      console.error('Datos de resultado inválidos: resultado es undefined');
+      console.error('Invalid result data: result is undefined');
       return false;
     }
 
@@ -26,7 +26,7 @@ export async function sendInterviewerEmail(result, interviewerEmail) {
     const msg = {
       to: interviewerEmail,
       from: {
-        email: 'notifications@influencer-assessment.com', // Cambia esto por tu email verificado en SendGrid
+        email: process.env.SENDGRID_SENDER_EMAIL || 'notifications@yourdomain.com',
         name: 'Influencer Marketing Assessment'
       },
       subject: `Assessment Results: ${userName} for Influencer Manager Position`,
@@ -61,31 +61,18 @@ export async function sendInterviewerEmail(result, interviewerEmail) {
       `
     };
 
-    // Log detallado antes de enviar
-    console.log('Sending email with payload:', {
-      to: msg.to,
-      subject: msg.subject,
-      userName,
-      totalScore,
-      masteryLevelDescription: masteryLevel.description
-    });
-
-    // Enviar el correo
-    const [response] = await sgMail.send(msg);
+    // Intentar enviar el correo
+    await sgMail.send(msg);
     
     console.log('Email sent successfully to:', interviewerEmail);
-    console.log('SendGrid response:', {
-      statusCode: response.statusCode,
-      headers: response.headers
-    });
-
     return true;
   } catch (error) {
-    console.error('Error sending email with SendGrid:', {
+    // Log detallado del error
+    console.error('Detailed SendGrid Email Error:', {
       message: error.message,
       stack: error.stack,
       responseBody: error.response ? JSON.stringify(error.response.body) : 'No response',
-      fullError: error
+      fullError: JSON.stringify(error)
     });
     
     return false;
