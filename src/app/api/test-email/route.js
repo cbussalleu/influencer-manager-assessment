@@ -1,9 +1,14 @@
 import { NextResponse } from 'next/server';
 import { sendInterviewerEmail } from '@/lib/email';
+import sgMail from '@sendgrid/mail';
 
 export async function GET(request) {
   try {
     console.log('Test email endpoint called');
+    
+    // Verificar la configuración de SendGrid
+    const apiKey = process.env.SENDGRID_API_KEY;
+    const senderEmail = process.env.SENDGRID_SENDER_EMAIL;
     
     // Crear un objeto de resultados de prueba más completo
     const testResult = {
@@ -30,6 +35,28 @@ export async function GET(request) {
     const targetEmail = process.env.TEST_EMAIL || process.env.INTERVIEWER_EMAIL || 'christian.bussalleu@gmail.com';
     
     console.log('Attempting to send test email to:', targetEmail);
+    console.log('SendGrid configuration:', {
+      apiKeyExists: !!apiKey,
+      apiKeyLength: apiKey ? apiKey.length : 0,
+      senderEmail: senderEmail || 'Not configured',
+      targetEmail
+    });
+    
+    // Simple validation test
+    try {
+      sgMail.setApiKey(apiKey);
+      // This is a direct API check without sending an email
+      await sgMail.validate();
+      console.log('SendGrid API key validation successful');
+    } catch (validationError) {
+      console.error('SendGrid API key validation failed:', validationError.message);
+      return NextResponse.json({ 
+        success: false,
+        message: 'SendGrid API key validation failed',
+        error: validationError.message,
+        suggestion: 'Please check your SendGrid API key configuration'
+      }, { status: 400 });
+    }
     
     // Intentar enviar el correo electrónico
     const emailResult = await sendInterviewerEmail(testResult, targetEmail);
@@ -54,7 +81,8 @@ export async function GET(request) {
     console.error('Error in test-email endpoint:', error);
     return NextResponse.json({ 
       error: 'Error sending test email',
-      details: error.message
+      details: error.message,
+      stack: error.stack.split('\n').slice(0, 3).join('\n')
     }, { status: 500 });
   }
 }
