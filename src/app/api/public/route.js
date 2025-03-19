@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 import { createAssessmentResult } from '@/lib/models/assessment';
 import { sendInterviewerEmail } from '@/lib/email';
@@ -16,16 +15,16 @@ export async function POST(request) {
     }
     const response_id = formResponse.token;
 
-    // Procesar las respuestas para obtener las puntuaciones
+    // Process responses to obtain scores
     const processedResults = processAnswers(formResponse);
     
-    // Obtener recomendaciones basadas en el nivel de maestría
+    // Get recommendations based on mastery level
     const recommendations = getRecommendations(processedResults.masteryLevel.level);
     
-    // Extraer nombre y email del usuario de las respuestas
+    // Extract user name and email from responses
     const userData = extractUserData(formResponse);
     
-    // Combinar todos los resultados
+    // Combine all results
     const results = {
       response_id,
       timestamp: new Date().toISOString(),
@@ -36,12 +35,12 @@ export async function POST(request) {
 
     console.log('Processed results:', results);
 
-    // Guardar en base de datos
+    // Save to database
     await createAssessmentResult(results);
     
-    // Enviar email al entrevistador
-    // Nota: El email del entrevistador podría ser configurable o fijo
-    const interviewerEmail = process.env.INTERVIEWER_EMAIL || 'entrevistador@ejemplo.com';
+    // Send email to the interviewer
+    // Note: The interviewer email could be configurable or fixed
+    const interviewerEmail = process.env.INTERVIEWER_EMAIL || 'interviewer@example.com';
     await sendInterviewerEmail(results, interviewerEmail);
 
     const redirectUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://influencer-manager-assessment.vercel.app'}/results?response_id=${response_id}`;
@@ -61,22 +60,22 @@ export async function POST(request) {
   }
 }
 
-// Función para extraer nombre y email del usuario
+// Function to extract user name and email
 function extractUserData(formResponse) {
   let userName = '';
   let userEmail = '';
   
   try {
-    // Buscar respuestas por tipo
+    // Look for answers by type
     formResponse.answers.forEach(answer => {
-      // Asumiendo que el nombre y email son preguntas de texto en Typeform
+      // Assuming name and email are text questions in Typeform
       if (answer.type === 'text') {
-        // Buscar el campo de nombre por ID o título
+        // Find the name field by ID or title
         const field = formResponse.definition.fields.find(f => f.id === answer.field.id);
         
-        if (field && field.title.toLowerCase().includes('nombre')) {
+        if (field && field.title.toLowerCase().includes('name')) {
           userName = answer.text;
-        } else if (field && field.title.toLowerCase().includes('email') || field.title.toLowerCase().includes('correo')) {
+        } else if (field && (field.title.toLowerCase().includes('email') || field.title.toLowerCase().includes('mail'))) {
           userEmail = answer.text;
         }
       } else if (answer.type === 'email') {
@@ -84,57 +83,152 @@ function extractUserData(formResponse) {
       }
     });
   } catch (error) {
-    console.error('Error extraer datos de usuario:', error);
+    console.error('Error extracting user data:', error);
   }
   
   return { userName, userEmail };
 }
 
-// Funciones de procesamiento igual que antes, adaptadas a Influencer Manager
+// Process answers according to the weight system defined in the questionnaire
 function processAnswers(formResponse) {
   try {
-    // Filtrar solo las preguntas de opción múltiple
+    // Filter only multiple choice questions
     const multipleChoiceAnswers = formResponse.answers.filter(answer => 
-      answer && answer.type === 'choice'
+      answer && (answer.type === 'choice' || answer.type === 'number')
     );
 
-    // Calcular el score de cada respuesta según su posición
+    // Calculate the score of each answer according to its position
     const scoredAnswers = multipleChoiceAnswers.map(answer => {
-      const field = formResponse.definition.fields.find(f => f.id === answer.field.id);
-      
-      if (!field || !field.choices) {
-        console.warn(`No choices found for field ${answer.field.id}`);
-        return 1; // valor por defecto
+      // For scale questions (1-5)
+      if (answer.type === 'number') {
+        // Convert 1-5 scale to 0-100%
+        return (answer.number - 1) * 25;
       }
       
-      const choiceIndex = field.choices.findIndex(choice => 
-        choice.label === answer.choice.label
-      );
+      // For multiple choice questions
+      else if (answer.type === 'choice') {
+        const field = formResponse.definition.fields.find(f => f.id === answer.field.id);
+        
+        if (!field || !field.choices) {
+          console.warn(`No choices found for field ${answer.field.id}`);
+          return 25; // default value
+        }
+        
+        // Find the index of the selected choice
+        const choiceIndex = field.choices.findIndex(choice => 
+          choice.label === answer.choice.label
+        );
+        
+        // Map the choice index to a score
+        // This is a simplified approach - in a real implementation you would
+        // have a more sophisticated mapping based on the answer scoring defined
+        // in the self-assessment questionnaire
+        const scores = [0, 25, 50, 75, 100];
+        return scores[choiceIndex] || 50;
+      }
       
-      return choiceIndex + 1; // +1 para que el primer índice sea 1
+      return 50; // default score for other types
     });
 
-    // Dividir respuestas en dimensiones (4 variables por dimensión)
-    const dimensionScores = [];
-    const numDimensions = 6; // 6 dimensiones
-    
-    for (let i = 0; i < numDimensions; i++) {
-      const start = i * 4;
-      const end = start + 4;
-      const dimensionAnswers = scoredAnswers.slice(start, end);
-      
-      if (dimensionAnswers.length > 0) {
-        const dimensionScore = dimensionAnswers.reduce((a, b) => a + b, 0) / dimensionAnswers.length;
-        dimensionScores.push(dimensionScore * 20); // Convertir a porcentaje (1-5 -> 20-100%)
-      } else {
-        dimensionScores.push(0); // En caso de no tener respuestas para esta dimensión
+    // Organize answers by dimensions (using the question IDs from Typeform)
+    // These mappings should match exactly the question IDs in your Typeform
+    const dimensionMappings = {
+      "strategic_selection": {
+        questions: ["question_1", "question_2", "question_3", "question_4"],
+        weights: { 
+          "question_1": 0.30, // Value alignment
+          "question_2": 0.25, // Congruence evaluation
+          "question_3": 0.25, // Audience analysis
+          "question_4": 0.20  // Verification process
+        }
+      },
+      "content_management": {
+        questions: ["question_5", "question_6", "question_7", "question_8"],
+        weights: {
+          "question_5": 0.25, // Briefing development
+          "question_6": 0.30, // Control/authenticity balance
+          "question_7": 0.25, // Campaign coordination
+          "question_8": 0.20  // Multichannel integration
+        }
+      },
+      "audience_understanding": {
+        questions: ["question_9", "question_10", "question_11", "question_12"],
+        weights: {
+          "question_9": 0.25,  // Engagement analysis
+          "question_10": 0.25, // Segmentation
+          "question_11": 0.30, // Cultural insight
+          "question_12": 0.20  // Resonance measurement
+        }
+      },
+      "authenticity_cultivation": {
+        questions: ["question_13", "question_14", "question_15", "question_16"],
+        weights: {
+          "question_13": 0.30, // Perception management
+          "question_14": 0.20, // Commercial transparency
+          "question_15": 0.30, // Intrinsic motivation
+          "question_16": 0.20  // Controversy management
+        }
+      },
+      "analysis_optimization": {
+        questions: ["question_17", "question_18", "question_19", "question_20"],
+        weights: {
+          "question_17": 0.25, // KPI definition
+          "question_18": 0.25, // Attribution
+          "question_19": 0.30, // Data analysis
+          "question_20": 0.20  // Continuous improvement
+        }
+      },
+      "digital_adaptability": {
+        questions: ["question_21", "question_22", "question_23", "question_24"],
+        weights: {
+          "question_21": 0.30, // Adaptation speed
+          "question_22": 0.25, // Trend monitoring
+          "question_23": 0.25, // Experimentation
+          "question_24": 0.20  // Technological vision
+        }
+      },
+      "relationship_management": {
+        questions: ["question_25", "question_26", "question_27", "question_28"],
+        weights: {
+          "question_25": 0.30, // Long-term development
+          "question_26": 0.25, // Effective communication
+          "question_27": 0.20, // Negotiation
+          "question_28": 0.25  // Conflict resolution
+        }
       }
-    }
+    };
 
-    // Calcular score total
-    const totalScore = dimensionScores.reduce((a, b) => a + b, 0) / dimensionScores.length;
+    // Create a mapping of question IDs to answers
+    const questionMap = {};
+    multipleChoiceAnswers.forEach((answer, index) => {
+      questionMap[answer.field.id] = scoredAnswers[index];
+    });
 
-    // Determinar nivel de madurez
+    // Calculate dimension scores
+    const dimensionScores = [];
+    let totalScore = 0;
+
+    Object.entries(dimensionMappings).forEach(([dimension, config]) => {
+      let dimensionTotal = 0;
+      let weightSum = 0;
+
+      config.questions.forEach(questionId => {
+        if (questionMap[questionId] !== undefined) {
+          const weight = config.weights[questionId];
+          dimensionTotal += questionMap[questionId] * weight;
+          weightSum += weight;
+        }
+      });
+
+      const dimensionScore = weightSum > 0 ? dimensionTotal / weightSum : 0;
+      dimensionScores.push(dimensionScore);
+      totalScore += dimensionScore;
+    });
+
+    // Calculate average total score
+    totalScore = dimensionScores.length > 0 ? totalScore / dimensionScores.length : 0;
+
+    // Determine mastery level
     const masteryLevel = determineMasteryLevel(totalScore);
 
     return {
@@ -145,9 +239,9 @@ function processAnswers(formResponse) {
     };
   } catch (error) {
     console.error('Error processing answers:', error);
-    // Devolver valores por defecto en caso de error
+    // Return default values in case of error
     return {
-      dimensionScores: [0, 0, 0, 0, 0, 0],
+      dimensionScores: [0, 0, 0, 0, 0, 0, 0],
       totalScore: 0,
       masteryLevel: determineMasteryLevel(0),
       rawScores: []
@@ -159,32 +253,32 @@ function determineMasteryLevel(score) {
   if (score <= 20) {
     return {
       level: 1,
-      description: "Principiante",
-      recommendations: "Requiere desarrollo fundamental en gestión de influencers"
+      description: "Basic",
+      recommendations: "Requires fundamental development in influencer management"
     };
   } else if (score <= 40) {
     return {
       level: 2, 
-      description: "En desarrollo",
-      recommendations: "Necesita fortalecer capacidades clave de influencer marketing"
+      description: "Developing",
+      recommendations: "Needs to strengthen key capabilities in influencer marketing"
     };
   } else if (score <= 60) {
     return {
       level: 3,
-      description: "Competente",
-      recommendations: "Buen potencial, debe perfeccionar aspectos específicos"
+      description: "Competent",
+      recommendations: "Good potential, should refine specific aspects"
     };
   } else if (score <= 80) {
     return {
       level: 4,
-      description: "Avanzado",
-      recommendations: "Alto desempeño, puede liderar estrategias con influencers"
+      description: "Advanced",
+      recommendations: "High performance, capable of leading influencer strategies"
     };
   } else {
     return {
       level: 5,
-      description: "Experto",
-      recommendations: "Nivel de excelencia, capacidad para innovar en el campo"
+      description: "Expert",
+      recommendations: "Excellence level, capacity to innovate in the field"
     };
   }
 }
@@ -192,83 +286,83 @@ function determineMasteryLevel(score) {
 function getRecommendations(level) {
   const recommendationMap = {
     1: {
-      title: "Desarrollo Inicial como Influencer Manager",
-      description: "Estás iniciando tu carrera en gestión de influencers. Enfócate en adquirir conocimientos fundamentales y construir una red inicial.",
+      title: "Initial Development as Influencer Manager",
+      description: "You are beginning your career in influencer management. Focus on acquiring fundamental knowledge and building an initial network.",
       generalRecommendations: [
-        "Familiarízate con plataformas de redes sociales y sus métricas básicas",
-        "Aprende fundamentos de marketing digital e influencer marketing",
-        "Practica habilidades de comunicación y relaciones interpersonales",
-        "Estudia casos exitosos de campañas con influencers"
+        "Familiarize yourself with social media platforms and their basic metrics",
+        "Learn fundamentals of digital marketing and influencer marketing",
+        "Practice communication skills and interpersonal relationships",
+        "Study successful cases of influencer campaigns"
       ],
       interviewPreparation: [
-        "Investiga agencias y marcas que trabajan con influencers",
-        "Prepara ejemplos de campañas que admiras y por qué",
-        "Demuestra tu capacidad de aprendizaje y adaptabilidad",
-        "Enfoca tus respuestas en tu potencial y entusiasmo por aprender"
+        "Research agencies and brands that work with influencers",
+        "Prepare examples of campaigns you admire and why",
+        "Demonstrate your learning capacity and adaptability",
+        "Focus your answers on your potential and enthusiasm for learning"
       ]
     },
     2: {
-      title: "Crecimiento en Gestión de Influencers",
-      description: "Tienes conocimientos básicos de influencer marketing. Es momento de profundizar y adquirir experiencia práctica.",
+      title: "Growth in Influencer Management",
+      description: "You have basic knowledge of influencer marketing. It's time to deepen and acquire practical experience.",
       generalRecommendations: [
-        "Desarrolla habilidades específicas en la gestión de relaciones con creadores",
-        "Aprende sobre contratos y aspectos legales del influencer marketing",
-        "Practica análisis de métricas y reporting de campañas",
-        "Expande tu red de contactos en el ecosistema de influencers"
+        "Develop specific skills in creator relationship management",
+        "Learn about contracts and legal aspects of influencer marketing",
+        "Practice campaign metrics analysis and reporting",
+        "Expand your network of contacts in the influencer ecosystem"
       ],
       interviewPreparation: [
-        "Prepara ejemplos concretos de campañas en las que has participado",
-        "Destaca tu conocimiento de herramientas específicas y plataformas",
-        "Menciona cómo has resuelto desafíos específicos con influencers",
-        "Muestra tu comprensión de la selección estratégica de influencers"
+        "Prepare concrete examples of campaigns you've participated in",
+        "Highlight your knowledge of specific tools and platforms",
+        "Mention how you've solved specific challenges with influencers",
+        "Show your understanding of strategic influencer selection"
       ]
     },
     3: {
-      title: "Competencia Profesional en Influencer Marketing",
-      description: "Tienes una base sólida en gestión de influencers. Es momento de especializarte y destacar.",
+      title: "Professional Competence in Influencer Marketing",
+      description: "You have a solid foundation in influencer management. It's time to specialize and stand out.",
       generalRecommendations: [
-        "Especialízate en nichos o industrias específicas",
-        "Perfecciona tus habilidades de negociación y gestión de presupuestos",
-        "Desarrolla estrategias de medición de ROI más sofisticadas",
-        "Amplía tu conocimiento sobre tendencias emergentes y nuevas plataformas"
+        "Specialize in specific niches or industries",
+        "Perfect your negotiation and budget management skills",
+        "Develop more sophisticated ROI measurement strategies",
+        "Expand your knowledge of emerging trends and new platforms"
       ],
       interviewPreparation: [
-        "Destaca campañas donde tu contribución fue significativa",
-        "Explica tu enfoque para evaluar el éxito de las campañas",
-        "Comparte ejemplos de negociaciones exitosas con influencers",
-        "Demuestra conocimiento sobre tendencias actuales del mercado"
+        "Highlight campaigns where your contribution was significant",
+        "Explain your approach to evaluating campaign success",
+        "Share examples of successful negotiations with influencers",
+        "Demonstrate knowledge of current market trends"
       ]
     },
     4: {
-      title: "Liderazgo en Influencer Marketing",
-      description: "Tienes un alto nivel de experiencia. Enfócate en estrategias avanzadas y liderazgo.",
+      title: "Leadership in Influencer Marketing",
+      description: "You have a high level of experience. Focus on advanced strategies and leadership.",
       generalRecommendations: [
-        "Desarrolla estrategias integradas multicanal con influencers",
-        "Implementa enfoques de datos avanzados para optimizar campañas",
-        "Lidera equipos y gestiona relaciones con influencers de alto nivel",
-        "Innova en formatos y enfoques de colaboración con creadores"
+        "Develop integrated multichannel strategies with influencers",
+        "Implement advanced data approaches to optimize campaigns",
+        "Lead teams and manage relationships with high-level influencers",
+        "Innovate in formats and approaches to creator collaboration"
       ],
       interviewPreparation: [
-        "Presenta casos de estudio detallados de campañas que lideraste",
-        "Explica tu visión estratégica para el futuro del influencer marketing",
-        "Destaca tu capacidad para gestionar crisis y situaciones complejas",
-        "Muestra cómo has integrado influencers en estrategias de marketing más amplias"
+        "Present detailed case studies of campaigns you've led",
+        "Explain your strategic vision for the future of influencer marketing",
+        "Highlight your ability to manage crises and complex situations",
+        "Show how you've integrated influencers into broader marketing strategies"
       ]
     },
     5: {
-      title: "Excelencia en Influencer Management",
-      description: "Eres un referente en el sector. Continúa innovando y definiendo mejores prácticas.",
+      title: "Excellence in Influencer Management",
+      description: "You are a reference in the sector. Continue innovating and defining best practices.",
       generalRecommendations: [
-        "Desarrolla estrategias pioneras en el campo",
-        "Mentoriza a otros profesionales y comparte conocimientos",
-        "Establece relaciones estratégicas con los principales influencers de la industria",
-        "Participa en la definición de estándares y mejores prácticas del sector"
+        "Develop pioneering strategies in the field",
+        "Mentor other professionals and share knowledge",
+        "Establish strategic relationships with leading industry influencers",
+        "Participate in defining industry standards and best practices"
       ],
       interviewPreparation: [
-        "Posiciónate como thought leader con ideas innovadoras",
-        "Explica cómo has transformado equipos o departamentos completos",
-        "Destaca colaboraciones de alto impacto con influencers reconocidos",
-        "Demuestra tu visión para evolucionar el rol de los influencers en el marketing"
+        "Position yourself as a thought leader with innovative ideas",
+        "Explain how you've transformed entire teams or departments",
+        "Highlight high-impact collaborations with recognized influencers",
+        "Demonstrate your vision for evolving the role of influencers in marketing"
       ]
     }
   };
@@ -288,7 +382,7 @@ export async function GET(request) {
       }, { status: 400 });
     }
 
-    // Obtener resultados de la base de datos
+    // Get results from database
     const result = await getAssessmentResultByResponseId(response_id);
     
     console.log('Returning result:', result);
