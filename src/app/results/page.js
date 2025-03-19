@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 import { useSearchParams } from 'next/navigation';
 import { ArrowRight, BookOpen, Download, ExternalLink, BarChart, Users, Brain, Code, Heart, Target, MessageCircle } from 'lucide-react';
 
-// Radar chart para visualizar las dimensiones
+// Radar chart to visualize dimensions
 const RadarChart = ({ scores, labels }) => {
-  // Esta es una visualización simplificada usando transformaciones CSS
-  // Para un radar chart más sofisticado, se podría usar Recharts
+  // This is a simplified visualization using CSS transformations
+  // For a more sophisticated radar chart, Recharts could be used
   
   const sides = scores.length;
   const angle = (2 * Math.PI) / sides;
@@ -18,14 +18,14 @@ const RadarChart = ({ scores, labels }) => {
   
   return (
     <div className="w-full max-w-md mx-auto relative h-80">
-      {/* Círculo de fondo */}
+      {/* Background circle */}
       <div className="w-full h-full flex items-center justify-center">
         <div className="w-40 h-40 rounded-full border-2 border-gray-200 opacity-30"></div>
         <div className="w-64 h-64 rounded-full border-2 border-gray-200 opacity-30 absolute"></div>
         <div className="w-80 h-80 rounded-full border-2 border-gray-200 opacity-30 absolute"></div>
       </div>
       
-      {/* Líneas de los ejes */}
+      {/* Axis lines */}
       {labels.map((_, i) => {
         const x = center + radius * Math.sin(i * angle);
         const y = center - radius * Math.cos(i * angle);
@@ -41,7 +41,7 @@ const RadarChart = ({ scores, labels }) => {
         );
       })}
       
-      {/* Polígono del score */}
+      {/* Score polygon */}
       <svg className="absolute top-0 left-0 w-full h-full" viewBox="0 0 200 200">
         <polygon 
           points={scores.map((score, i) => {
@@ -56,9 +56,9 @@ const RadarChart = ({ scores, labels }) => {
         />
       </svg>
       
-      {/* Etiquetas */}
+      {/* Labels */}
       {labels.map((label, i) => {
-        const percent = 1.2; // Posición de la etiqueta más allá del radio
+        const percent = 1.2; // Label position beyond the radius
         const x = center + radius * percent * Math.sin(i * angle);
         const y = center - radius * percent * Math.cos(i * angle);
         return (
@@ -75,7 +75,7 @@ const RadarChart = ({ scores, labels }) => {
         );
       })}
       
-      {/* Puntos de los scores */}
+      {/* Score points */}
       {scores.map((score, i) => {
         const percent = score / 100;
         const x = center + radius * percent * Math.sin(i * angle);
@@ -94,13 +94,13 @@ const RadarChart = ({ scores, labels }) => {
   );
 };
 
-// Componente para recursos recomendados
+// Component for recommended resources
 const ResourceCard = ({ title, type, link, description }) => {
   const getIcon = () => {
     switch(type) {
-      case 'curso': return <BookOpen className="w-5 h-5" />;
-      case 'libro': return <BookOpen className="w-5 h-5" />;
-      case 'herramienta': return <Code className="w-5 h-5" />;
+      case 'course': return <BookOpen className="w-5 h-5" />;
+      case 'book': return <BookOpen className="w-5 h-5" />;
+      case 'tool': return <Code className="w-5 h-5" />;
       default: return <ExternalLink className="w-5 h-5" />;
     }
   };
@@ -122,7 +122,7 @@ const ResourceCard = ({ title, type, link, description }) => {
               rel="noopener noreferrer"
               className="text-blue-600 text-sm font-medium flex items-center gap-1 mt-2 hover:text-blue-800"
             >
-              Ver recurso <ExternalLink className="w-3 h-3" />
+              View resource <ExternalLink className="w-3 h-3" />
             </a>
           </div>
         </div>
@@ -131,7 +131,7 @@ const ResourceCard = ({ title, type, link, description }) => {
   );
 };
 
-// Componente para mostrar una dimensión con su puntuación
+// Component to display a dimension with its score
 const DimensionScore = ({ icon: Icon, title, score, description }) => {
   return (
     <Card className="p-5 hover:shadow-md transition-all border-l-4 border-l-blue-600">
@@ -159,7 +159,7 @@ const DimensionScore = ({ icon: Icon, title, score, description }) => {
   );
 };
 
-// Componente para nivel de maestría
+// Component for mastery level
 const MasteryLevelCard = ({ level, description, recommendations }) => {
   const getLevelColor = () => {
     switch(level) {
@@ -174,12 +174,12 @@ const MasteryLevelCard = ({ level, description, recommendations }) => {
   
   const getLevelName = () => {
     switch(level) {
-      case 1: return 'Básico';
-      case 2: return 'En desarrollo';
-      case 3: return 'Competente';
-      case 4: return 'Avanzado';
-      case 5: return 'Experto';
-      default: return 'No determinado';
+      case 1: return 'Basic';
+      case 2: return 'Developing';
+      case 3: return 'Competent';
+      case 4: return 'Advanced';
+      case 5: return 'Expert';
+      default: return 'Undetermined';
     }
   };
   
@@ -187,9 +187,9 @@ const MasteryLevelCard = ({ level, description, recommendations }) => {
     <Card className="overflow-hidden">
       <div className={`p-4 ${getLevelColor()}`}>
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-bold">Nivel de Maestría</h3>
+          <h3 className="text-lg font-bold">Mastery Level</h3>
           <span className="px-3 py-1 rounded-full bg-white text-sm font-bold">
-            Nivel {level} - {getLevelName()}
+            Level {level} - {getLevelName()}
           </span>
         </div>
       </div>
@@ -209,143 +209,143 @@ function Results() {
   const [activeTab, setActiveTab] = useState('overview');
   const searchParams = useSearchParams();
 
-  // Dimensiones con sus iconos y descripciones
+  // Dimensions with their icons and descriptions
   const dimensions = [
     {
       icon: BarChart,
-      title: "Selección Estratégica de Influencers",
-      description: "Capacidad para identificar influencers alineados con valores de marca, análisis de audiencia y verificación de autenticidad."
+      title: "Strategic Influencer Selection",
+      description: "Ability to identify influencers aligned with brand values, audience analysis, and authenticity verification."
     },
     {
       icon: MessageCircle,
-      title: "Gestión de Contenido y Campañas",
-      description: "Desarrollo de briefings, balance entre control y autenticidad, coordinación de campañas e integración multicanal."
+      title: "Content & Campaign Management",
+      description: "Briefing development, balance between control and authenticity, campaign coordination, and multichannel integration."
     },
     {
       icon: Users,
-      title: "Comprensión de Audiencias",
-      description: "Análisis de engagement, segmentación, comprensión de contextos culturales y medición de resonancia emocional."
+      title: "Audience Understanding",
+      description: "Engagement analysis, segmentation, understanding of cultural contexts, and measurement of emotional resonance."
     },
     {
       icon: Heart,
-      title: "Cultivo de Autenticidad",
-      description: "Transparencia comercial, motivación intrínseca, gestión de percepción y manejo de controversias."
+      title: "Authenticity Cultivation",
+      description: "Commercial transparency, intrinsic motivation, perception management, and controversy handling."
     },
     {
       icon: Target,
-      title: "Análisis y Optimización",
-      description: "Definición de KPIs, atribución, análisis de datos y mejora continua basada en aprendizajes."
+      title: "Analysis & Optimization",
+      description: "KPI definition, attribution, data analysis, and continuous improvement based on learnings."
     },
     {
       icon: Code,
-      title: "Adaptabilidad al Ecosistema Digital",
-      description: "Monitoreo de tendencias, experimentación, velocidad de adaptación y visión tecnológica."
+      title: "Digital Ecosystem Adaptability",
+      description: "Trend monitoring, experimentation, adaptation speed, and technological vision."
     },
     {
       icon: Brain,
-      title: "Gestión de Relaciones",
-      description: "Comunicación efectiva, negociación, desarrollo de relaciones a largo plazo y resolución de conflictos."
+      title: "Relationship Management",
+      description: "Effective communication, negotiation, long-term relationship development, and conflict resolution."
     }
   ];
 
-  // Recursos recomendados por dimensión
+  // Recommended resources by dimension
   const recommendedResources = {
-    0: [ // Selección Estratégica
+    0: [ // Strategic Selection
       {
         title: "Brand Management: Aligning Business, Brand and Behavior",
-        type: "curso",
+        type: "course",
         link: "https://www.coursera.org/learn/brand",
-        description: "Curso de London Business School sobre alineación de valores de marca."
+        description: "London Business School course on brand value alignment."
       },
       {
         title: "Contagious: How to Build Word of Mouth in the Digital Age",
-        type: "libro",
+        type: "book",
         link: "https://www.amazon.com/Contagious-Build-Word-Mouth-Digital/dp/1451686579",
-        description: "Jonah Berger explora qué hace que el contenido sea compartido y valorado."
+        description: "Jonah Berger explores what makes content shareable and valuable."
       }
     ],
-    1: [ // Gestión de Contenido
+    1: [ // Content Management
       {
         title: "Brief Development and Creative Evaluation",
-        type: "curso",
+        type: "course",
         link: "https://www.linkedin.com/learning/brief-development-and-creative-evaluation",
-        description: "Aprende a desarrollar briefings efectivos que equilibran directrices y creatividad."
+        description: "Learn to develop effective briefs that balance guidelines and creativity."
       },
       {
         title: "The End of Marketing: Humanizing Your Brand in the Age of Social Media and AI",
-        type: "libro",
+        type: "book",
         link: "https://www.amazon.com/End-Marketing-Humanizing-Brand-Social/dp/0749497572",
-        description: "Carlos Gil explora cómo humanizar marcas en la era digital."
+        description: "Carlos Gil explores how to humanize brands in the digital era."
       }
     ],
-    2: [ // Comprensión de Audiencias
+    2: [ // Audience Understanding
       {
         title: "Advanced Digital Marketing Audience Strategy",
-        type: "curso",
+        type: "course",
         link: "https://www.udemy.com/course/advanced-digital-marketing-audience-strategy/",
-        description: "Estrategias avanzadas para comprender y segmentar audiencias digitales."
+        description: "Advanced strategies to understand and segment digital audiences."
       },
       {
         title: "Audience Analytics",
-        type: "herramienta",
+        type: "tool",
         link: "https://analytics.google.com/analytics/academy/",
-        description: "Curso de Google Analytics Academy sobre análisis avanzado de audiencias."
+        description: "Google Analytics Academy course on advanced audience analysis."
       }
     ],
-    3: [ // Cultivo de Autenticidad
+    3: [ // Authenticity Cultivation
       {
         title: "Digital Ethics",
-        type: "curso",
+        type: "course",
         link: "https://www.linkedin.com/learning/digital-marketing-ethics",
-        description: "Curso sobre ética y transparencia en marketing digital."
+        description: "Course on ethics and transparency in digital marketing."
       },
       {
         title: "Authentic: How to Make a Living By Being Yourself",
-        type: "libro",
+        type: "book",
         link: "https://www.amazon.com/Authentic-Make-Living-Being-Yourself/dp/1529336503",
-        description: "Sarah Staar explora cómo la autenticidad es crucial para el éxito."
+        description: "Sarah Staar explores how authenticity is crucial for success."
       }
     ],
-    4: [ // Análisis y Optimización
+    4: [ // Analysis & Optimization
       {
         title: "Marketing Analytics: Setting and Measuring KPIs",
-        type: "curso",
+        type: "course",
         link: "https://www.coursera.org/learn/marketing-analytics",
-        description: "Curso de UC Berkeley sobre definición y medición de KPIs relevantes."
+        description: "UC Berkeley course on defining and measuring relevant KPIs."
       },
       {
         title: "Google Analytics Certification",
-        type: "curso",
+        type: "course",
         link: "https://analytics.google.com/analytics/academy/",
-        description: "Certificación oficial para análisis de datos de marketing digital."
+        description: "Official certification for digital marketing data analysis."
       }
     ],
-    5: [ // Adaptabilidad Digital
+    5: [ // Digital Adaptability
       {
         title: "Digital Marketing Trends",
-        type: "curso",
+        type: "course",
         link: "https://www.udacity.com/course/digital-marketing-nanodegree--nd018",
-        description: "Programa de Udacity sobre tendencias emergentes en marketing digital."
+        description: "Udacity program on emerging trends in digital marketing."
       },
       {
         title: "Experimentation for Improvement",
-        type: "curso",
+        type: "course",
         link: "https://www.coursera.org/learn/experimentation",
-        description: "Universidad de Virginia - Experimentación y pruebas en entornos digitales."
+        description: "University of Virginia - Experimentation and testing in digital environments."
       }
     ],
-    6: [ // Gestión de Relaciones
+    6: [ // Relationship Management
       {
         title: "Successful Negotiation: Essential Strategies and Skills",
-        type: "curso",
+        type: "course",
         link: "https://www.coursera.org/learn/negotiation-skills",
-        description: "Curso de la Universidad de Michigan sobre técnicas de negociación eficaz."
+        description: "University of Michigan course on effective negotiation techniques."
       },
       {
         title: "Never Split the Difference",
-        type: "libro",
+        type: "book",
         link: "https://www.amazon.com/Never-Split-Difference-Negotiating-Depended/dp/0062407805",
-        description: "Chris Voss comparte técnicas de negociación avanzadas del FBI."
+        description: "Chris Voss shares advanced FBI negotiation techniques."
       }
     ]
   };
@@ -358,31 +358,31 @@ function Results() {
         
         if (!response_id) {
           console.log('No response ID found in URL');
-          setError('No se encontró el identificador de resultados');
+          setError('No results identifier found');
           setLoading(false);
           return;
         }
 
         console.log('Response ID:', response_id);
         
-        // Función para intentar cargar los resultados con reintentos
+        // Function to attempt loading results with retries
         const tryLoadResults = async (attempts) => {
-          console.log(`Intento ${attempts + 1} de cargar resultados para: ${response_id}`);
+          console.log(`Attempt ${attempts + 1} to load results for: ${response_id}`);
           
           try {
             const response = await fetch(`/api/results/${response_id}`);
             
             if (response.status === 404) {
-              // Si no se encuentran resultados, y aún podemos reintentar
+              // If results not found, and we can still retry
               if (attempts < 5) {
-                console.log(`Resultados no encontrados. Reintentando en 3 segundos...`);
+                console.log(`Results not found. Retrying in 3 seconds...`);
                 setLoadingAttempts(attempts + 1);
-                // Esperar 3 segundos antes de reintentar
+                // Wait 3 seconds before retrying
                 setTimeout(() => tryLoadResults(attempts + 1), 3000);
                 return;
               } else {
-                // Si ya hemos intentado demasiadas veces, mostrar error
-                setError('No se encontraron resultados después de varios intentos. Por favor, inténtalo de nuevo más tarde.');
+                // If we've tried too many times, show error
+                setError('Results not found after several attempts. Please try again later.');
                 setLoading(false);
                 return;
               }
@@ -391,7 +391,7 @@ function Results() {
             if (!response.ok) {
               const errorData = await response.json();
               console.error('Error fetching results:', errorData);
-              setError(errorData.error || 'No se pudieron cargar los resultados');
+              setError(errorData.error || 'Could not load results');
               setLoading(false);
               return;
             }
@@ -399,13 +399,13 @@ function Results() {
             const data = await response.json();
             console.log('Results data from API:', data);
             
-            // Formatear los datos de manera más robusta
+            // Format data more robustly
             const processedResults = {
               totalScore: Number(data.totalScore || data.total_score || 0).toFixed(1),
               masteryLevel: data.masteryLevel || 
                 (typeof data.mastery_level === 'string' 
                   ? JSON.parse(data.mastery_level) 
-                  : { description: 'No disponible', level: 0 }),
+                  : { description: 'Not available', level: 0 }),
               dimensionScores: Array.isArray(data.dimensionScores) 
                 ? data.dimensionScores 
                 : (data.dimension_scores 
@@ -415,8 +415,8 @@ function Results() {
                 (typeof data.recommendations === 'string' 
                   ? JSON.parse(data.recommendations) 
                   : {
-                      title: 'Recomendaciones',
-                      description: 'No hay recomendaciones disponibles',
+                      title: 'Recommendations',
+                      description: 'No recommendations available',
                       generalRecommendations: []
                     }),
               userName: data.userName || data.user_name || '',
@@ -428,23 +428,23 @@ function Results() {
           } catch (error) {
             console.error('Error in attempt:', error);
             
-            // Si aún tenemos intentos disponibles, reintentar
+            // If we still have attempts available, retry
             if (attempts < 5) {
-              console.log(`Error en intento ${attempts + 1}. Reintentando en 3 segundos...`);
+              console.log(`Error in attempt ${attempts + 1}. Retrying in 3 seconds...`);
               setLoadingAttempts(attempts + 1);
               setTimeout(() => tryLoadResults(attempts + 1), 3000);
             } else {
-              setError('Ocurrió un error al cargar los resultados después de varios intentos.');
+              setError('An error occurred while loading results after several attempts.');
               setLoading(false);
             }
           }
         };
 
-        // Iniciar el proceso de carga con reintentos
+        // Start the loading process with retries
         tryLoadResults(0);
       } catch (error) {
         console.error('Unexpected error:', error);
-        setError('Ocurrió un error inesperado al cargar los resultados');
+        setError('An unexpected error occurred while loading results');
         setLoading(false);
       }
     };
@@ -452,30 +452,40 @@ function Results() {
     fetchResults();
   }, [searchParams]);
 
-  // Mock data para demostración - en producción esto vendrá de la API
-  // Eliminar este bloque cuando se integre con la API real
+  // Mock data for demonstration - in production this would come from the API that implements the calculation logic
+  // Import the calculation service when available:
+  // import { calculateMaturityLevel } from '@/lib/assessmentCalculation';
+  
   useEffect(() => {
     if (process.env.NODE_ENV === 'development' && !results && !error) {
-      // Simular carga de datos después de 1 segundo para demostración
+      // Simulate data loading after 1 second for demonstration
       const timer = setTimeout(() => {
+        // In production, this data would come from the backend that implements the calculation logic
+        // described in src/lib/assessmentCalculation.js
+        
+        // The dimensionScores calculation would be done according to specific weights:
+        // - For "Strategic Influencer Selection": value_alignment (30%), audience_analysis (25%), etc.
+        // - For "Content Management": briefing_development (25%), control_authenticity_balance (30%), etc.
+        // - And so on for each skill, as defined in the assessment system documentation
+
         const mockData = {
           totalScore: 64.5,
           masteryLevel: {
             level: 4,
-            description: "Avanzado",
-            recommendations: "Tienes un dominio significativo de las capacidades clave de un Influencer Manager. Para alcanzar el nivel experto, enfócate en desarrollar modelos de atribución avanzados y profundizar en la integración estratégica omnicanal."
+            description: "Advanced: Advanced level with sophisticated methodologies and proactive approach",
+            recommendations: "To reach the expert level, develop innovation and transformational leadership capabilities in influencer marketing"
           },
           dimensionScores: [74, 57, 68, 59, 38, 71, 85],
-          userName: "Carlos Rodriguez",
-          userEmail: "carlos@example.com",
+          userName: "John Smith",
+          userEmail: "john.smith@example.com",
           recommendations: {
-            title: "Plan de Desarrollo Personalizado",
-            description: "Basándonos en tu evaluación, hemos creado un plan de desarrollo focalizado en tus áreas de oportunidad y potenciando tus fortalezas.",
+            title: "Personalized Development Plan",
+            description: "Based on your assessment, we have created a development plan focused on your opportunity areas and leveraging your strengths.",
             generalRecommendations: [
-              "Prioriza el desarrollo de capacidades analíticas avanzadas para mejorar la atribución y ROI",
-              "Fortalece la integración omnicanal de tus campañas con influencers",
-              "Implementa un framework personalizado para evaluar autenticidad",
-              "Aprovecha tu excepcional capacidad de gestión de relaciones para crear programas de embajadores a largo plazo"
+              "Prioritize developing advanced analytical capabilities to improve attribution and ROI",
+              "Strengthen the omnichannel integration of your influencer campaigns",
+              "Implement a personalized framework to evaluate authenticity",
+              "Leverage your exceptional relationship management capability to create long-term ambassador programs"
             ]
           }
         };
@@ -491,14 +501,14 @@ function Results() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50">
         <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-8"></div>
-        <div className="text-2xl font-bold text-blue-900 mb-4 text-center">Cargando tus resultados...</div>
+        <div className="text-2xl font-bold text-blue-900 mb-4 text-center">Loading your results...</div>
         <div className="text-gray-600 max-w-md text-center mb-2">
           {loadingAttempts > 0 ? 
-            `Estamos procesando tu evaluación. Intento ${loadingAttempts} de 6...` : 
-            'Estamos analizando tus respuestas para generar recomendaciones personalizadas.'}
+            `We're processing your assessment. Attempt ${loadingAttempts} of 6...` : 
+            'We are analyzing your responses to generate personalized recommendations.'}
         </div>
         <div className="text-sm text-gray-500 max-w-md text-center">
-          Este proceso puede tomar unos momentos. Por favor, no cierres esta ventana.
+          This process may take a moment. Please do not close this window.
         </div>
       </div>
     );
@@ -509,19 +519,19 @@ function Results() {
       <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50">
         <div className="text-2xl text-red-600 font-bold mb-4 text-center">{error}</div>
         <p className="text-gray-600 max-w-md text-center mb-8">
-          Lo sentimos, no pudimos cargar tus resultados. Esto puede deberse a que los datos aún están siendo procesados o a un problema técnico.
+          Sorry, we couldn't load your results. This may be because the data is still being processed or due to a technical issue.
         </p>
         <Button 
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg"
           onClick={() => window.location.reload()}
         >
-          Intentar nuevamente
+          Try Again
         </Button>
         <Button 
           className="mt-4 bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-3 rounded-lg"
           onClick={() => window.location.href = '/'}
         >
-          Volver al Inicio
+          Back to Home
         </Button>
       </div>
     );
@@ -530,21 +540,21 @@ function Results() {
   if (!results) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50">
-        <div className="text-2xl font-bold text-gray-800 mb-4 text-center">No se encontraron resultados</div>
+        <div className="text-2xl font-bold text-gray-800 mb-4 text-center">No results found</div>
         <p className="text-gray-600 max-w-md text-center mb-8">
-          No pudimos encontrar los resultados para la evaluación solicitada. Es posible que el enlace no sea válido o que los datos hayan sido eliminados.
+          We couldn't find results for the requested assessment. The link may be invalid or the data may have been deleted.
         </p>
         <Button 
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg"
           onClick={() => window.location.href = '/assessment'}
         >
-          Realizar nueva evaluación
+          Take New Assessment
         </Button>
         <Button 
           className="mt-4 bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-3 rounded-lg"
           onClick={() => window.location.href = '/'}
         >
-          Volver al Inicio
+          Back to Home
         </Button>
       </div>
     );
@@ -552,44 +562,44 @@ function Results() {
 
   const dimensionNames = dimensions.map(d => d.title);
 
-  // Función para determinar el nivel de competencia de cada dimensión
+  // Function to determine the competency level of each dimension
   const getDimensionLevel = (score) => {
-    if (score <= 20) return { level: 1, name: "Básico" };
-    if (score <= 40) return { level: 2, name: "En desarrollo" };
-    if (score <= 60) return { level: 3, name: "Competente" };
-    if (score <= 80) return { level: 4, name: "Avanzado" };
-    return { level: 5, name: "Experto" };
+    if (score <= 20) return { level: 1, name: "Basic" };
+    if (score <= 40) return { level: 2, name: "Developing" };
+    if (score <= 60) return { level: 3, name: "Competent" };
+    if (score <= 80) return { level: 4, name: "Advanced" };
+    return { level: 5, name: "Expert" };
   };
 
   return (
     <div className="min-h-screen font-sans bg-gray-50">
-      {/* Header con score total */}
+      {/* Header with total score */}
       <section className="bg-blue-900 text-white py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-8">
-              <h1 className="text-3xl md:text-4xl font-bold mb-4">Resultados de tu Evaluación de Capacidades</h1>
-              <p className="text-xl text-blue-100">Análisis basado en el marco teórico de 7 dimensiones clave para Influencer Marketing</p>
+              <h1 className="text-3xl md:text-4xl font-bold mb-4">Your Capability Assessment Results</h1>
+              <p className="text-xl text-blue-100">Analysis based on the 7 key dimensions framework for Influencer Marketing</p>
             </div>
             
             <Card className="bg-white text-blue-900">
               <CardContent className="p-6">
                 <div className="grid md:grid-cols-3 gap-6 items-center">
                   <div className="text-center md:text-left">
-                    <h2 className="text-xl font-semibold mb-1">Score Total</h2>
+                    <h2 className="text-xl font-semibold mb-1">Total Score</h2>
                     <div className="text-6xl font-bold text-blue-600">{results.totalScore}%</div>
                   </div>
                   
                   <div className="md:col-span-2">
-                    <h3 className="font-semibold mb-2">Nivel de Maestría: {results.masteryLevel.description}</h3>
+                    <h3 className="font-semibold mb-2">Mastery Level: {results.masteryLevel.description.split(':')[0]}</h3>
                     <p className="text-gray-600 mb-4">{results.masteryLevel.recommendations}</p>
                     <div className="relative pt-1">
                       <div className="flex mb-2 items-center justify-between">
                         <div className="text-xs font-semibold text-gray-700">
-                          Básico
+                          Basic
                         </div>
                         <div className="text-xs font-semibold text-blue-700">
-                          Experto
+                          Expert
                         </div>
                       </div>
                       <div className="overflow-hidden h-2 mb-1 text-xs flex rounded bg-gray-200">
@@ -604,49 +614,49 @@ function Results() {
         </div>
       </section>
 
-      {/* Contenido principal con tabs */}
+      {/* Main content with tabs */}
       <section className="py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
-            {/* Tabs de navegación */}
+            {/* Navigation tabs */}
             <div className="flex mb-8 border-b border-gray-200 overflow-x-auto">
               <button 
                 className={`px-4 py-2 font-semibold text-sm whitespace-nowrap ${activeTab === 'overview' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
                 onClick={() => setActiveTab('overview')}
               >
-                Resumen
+                Overview
               </button>
               <button 
                 className={`px-4 py-2 font-semibold text-sm whitespace-nowrap ${activeTab === 'dimensions' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
                 onClick={() => setActiveTab('dimensions')}
               >
-                Dimensiones Detalladas
+                Detailed Dimensions
               </button>
               <button 
                 className={`px-4 py-2 font-semibold text-sm whitespace-nowrap ${activeTab === 'recommendations' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
                 onClick={() => setActiveTab('recommendations')}
               >
-                Recomendaciones
+                Recommendations
               </button>
               <button 
                 className={`px-4 py-2 font-semibold text-sm whitespace-nowrap ${activeTab === 'resources' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
                 onClick={() => setActiveTab('resources')}
               >
-                Recursos
+                Resources
               </button>
             </div>
             
-            {/* Contenido de los tabs */}
+            {/* Tab contents */}
             {activeTab === 'overview' && (
               <div>
-                <h2 className="text-2xl font-bold mb-6 text-center">Análisis de Capacidades</h2>
+                <h2 className="text-2xl font-bold mb-6 text-center">Capabilities Analysis</h2>
                 
                 <div className="mb-10">
                   <Card className="bg-gray-50">
                     <CardContent className="p-6">
                       <RadarChart 
                         scores={results.dimensionScores}
-                        labels={dimensionNames.map(name => name.split(' ').slice(-1)[0])}
+                        labels={dimensionNames.map(name => name.split(' ')[0])}
                       />
                     </CardContent>
                   </Card>
@@ -659,12 +669,12 @@ function Results() {
                 />
                 
                 <div className="mt-8">
-                  <h3 className="text-xl font-bold mb-4">Tus Fortalezas y Oportunidades</h3>
+                  <h3 className="text-xl font-bold mb-4">Your Strengths & Opportunities</h3>
                   
                   <div className="grid md:grid-cols-2 gap-6">
                     <Card>
                       <CardContent className="p-6">
-                        <h4 className="text-lg font-bold text-green-600 mb-3">Fortalezas</h4>
+                        <h4 className="text-lg font-bold text-green-600 mb-3">Strengths</h4>
                         <ul className="space-y-2">
                           {results.dimensionScores.map((score, idx) => {
                             if (score >= 70) {
@@ -678,7 +688,7 @@ function Results() {
                             return null;
                           })}
                           {results.dimensionScores.filter(score => score >= 70).length === 0 && (
-                            <li className="text-gray-500 italic">Sigue trabajando en desarrollar tus capacidades. ¡Vas por buen camino!</li>
+                            <li className="text-gray-500 italic">Keep working on developing your capabilities. You're on the right track!</li>
                           )}
                         </ul>
                       </CardContent>
@@ -686,7 +696,7 @@ function Results() {
                     
                     <Card>
                       <CardContent className="p-6">
-                        <h4 className="text-lg font-bold text-orange-600 mb-3">Oportunidades de Mejora</h4>
+                        <h4 className="text-lg font-bold text-orange-600 mb-3">Improvement Opportunities</h4>
                         <ul className="space-y-2">
                           {results.dimensionScores.map((score, idx) => {
                             if (score < 60) {
@@ -700,7 +710,7 @@ function Results() {
                             return null;
                           })}
                           {results.dimensionScores.filter(score => score < 60).length === 0 && (
-                            <li className="text-gray-500 italic">¡Felicidades! Has alcanzado al menos nivel Competente en todas las dimensiones.</li>
+                            <li className="text-gray-500 italic">Congratulations! You've achieved at least Competent level in all dimensions.</li>
                           )}
                         </ul>
                       </CardContent>
@@ -712,7 +722,7 @@ function Results() {
             
             {activeTab === 'dimensions' && (
               <div>
-                <h2 className="text-2xl font-bold mb-6">Análisis Detallado por Dimensión</h2>
+                <h2 className="text-2xl font-bold mb-6">Detailed Analysis by Dimension</h2>
                 <div className="space-y-6">
                   {dimensions.map((dimension, idx) => (
                     <DimensionScore 
@@ -726,27 +736,27 @@ function Results() {
                 </div>
                 
                 <div className="mt-10 bg-gray-50 p-6 rounded-lg border border-gray-200">
-                  <h3 className="text-xl font-bold mb-4">Niveles de Madurez</h3>
+                  <h3 className="text-xl font-bold mb-4">Maturity Levels</h3>
                   <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                     <div className="bg-white p-4 rounded shadow-sm">
-                      <div className="text-gray-600 font-semibold mb-1">Nivel 1: Básico (0-20%)</div>
-                      <p className="text-sm">Enfoque reactivo, procesos mínimos y uso de métricas superficiales</p>
+                      <div className="text-gray-600 font-semibold mb-1">Level 1: Basic (0-20%)</div>
+                      <p className="text-sm">Reactive approach, minimal processes, and use of surface metrics</p>
                     </div>
                     <div className="bg-white p-4 rounded shadow-sm">
-                      <div className="text-blue-600 font-semibold mb-1">Nivel 2: En desarrollo (21-40%)</div>
-                      <p className="text-sm">Procesos básicos establecidos pero sin metodología consistente</p>
+                      <div className="text-blue-600 font-semibold mb-1">Level 2: Developing (21-40%)</div>
+                      <p className="text-sm">Basic processes established but without consistent methodology</p>
                     </div>
                     <div className="bg-white p-4 rounded shadow-sm">
-                      <div className="text-green-600 font-semibold mb-1">Nivel 3: Competente (41-60%)</div>
-                      <p className="text-sm">Sistemas eficientes que equilibran aspectos claves con resultados consistentes</p>
+                      <div className="text-green-600 font-semibold mb-1">Level 3: Competent (41-60%)</div>
+                      <p className="text-sm">Efficient systems that balance key aspects with consistent results</p>
                     </div>
                     <div className="bg-white p-4 rounded shadow-sm">
-                      <div className="text-yellow-600 font-semibold mb-1">Nivel 4: Avanzado (61-80%)</div>
-                      <p className="text-sm">Gestión proactiva con enfoques sofisticados y capacidad predictiva</p>
+                      <div className="text-yellow-600 font-semibold mb-1">Level 4: Advanced (61-80%)</div>
+                      <p className="text-sm">Proactive management with sophisticated approaches and predictive capacity</p>
                     </div>
                     <div className="bg-white p-4 rounded shadow-sm">
-                      <div className="text-purple-600 font-semibold mb-1">Nivel 5: Experto (81-100%)</div>
-                      <p className="text-sm">Dominio completo con innovación continua y liderazgo transformacional</p>
+                      <div className="text-purple-600 font-semibold mb-1">Level 5: Expert (81-100%)</div>
+                      <p className="text-sm">Complete mastery with continuous innovation and transformational leadership</p>
                     </div>
                   </div>
                 </div>
@@ -775,7 +785,7 @@ function Results() {
                 </Card>
                 
                 <div className="mt-8">
-                  <h3 className="text-xl font-bold mb-4">Recomendaciones Específicas por Dimensión</h3>
+                  <h3 className="text-xl font-bold mb-4">Specific Recommendations by Dimension</h3>
                   <div className="space-y-6">
                     {dimensions.map((dimension, idx) => {
                       const score = results.dimensionScores[idx];
@@ -783,21 +793,21 @@ function Results() {
                       
                       if (score < 40) {
                         specificRecs = [
-                          "Establece un plan de formación fundamental en esta área",
-                          "Busca mentores especializados en esta dimensión",
-                          "Comienza con proyectos pequeños supervisados para ganar experiencia"
+                          "Establish a fundamental training plan in this area",
+                          "Seek mentors specialized in this dimension",
+                          "Start with small supervised projects to gain experience"
                         ];
                       } else if (score < 70) {
                         specificRecs = [
-                          "Profundiza en aspectos específicos de esta dimensión",
-                          "Busca proyectos donde puedas desarrollar estas capacidades",
-                          "Considera formación especializada para alcanzar nivel avanzado"
+                          "Deepen your knowledge in specific aspects of this dimension",
+                          "Look for projects where you can develop these capabilities",
+                          "Consider specialized training to reach advanced level"
                         ];
                       } else {
                         specificRecs = [
-                          "Comparte tu conocimiento con otros profesionales",
-                          "Busca innovar y desarrollar nuevos enfoques en esta área",
-                          "Considera liderar iniciativas o crear contenido formativo"
+                          "Share your knowledge with other professionals",
+                          "Look to innovate and develop new approaches in this area",
+                          "Consider leading initiatives or creating training content"
                         ];
                       }
                       
@@ -824,29 +834,29 @@ function Results() {
             
             {activeTab === 'resources' && (
               <div>
-                <h2 className="text-2xl font-bold mb-6">Recursos Recomendados</h2>
+                <h2 className="text-2xl font-bold mb-6">Recommended Resources</h2>
                 
                 <div className="mb-8">
                   <p className="text-lg mb-4">
-                    Basado en tus resultados, hemos seleccionado recursos específicos que te ayudarán a desarrollar tus capacidades profesionales como Influencer Manager.
+                    Based on your results, we've selected specific resources that will help you develop your professional capabilities as an Influencer Manager.
                   </p>
                 </div>
                 
-                {/* Priorizar dimensiones con puntuación baja */}
+                {/* Prioritize dimensions with low scores */}
                 {dimensions.map((dimension, idx) => {
-                  // Mostrar recursos con énfasis en dimensiones con puntuación menor a 70%
-                  const priorityOrder = results.dimensionScores[idx] < 60 ? "alta" :
-                                        results.dimensionScores[idx] < 70 ? "media" : "baja";
+                  // Show resources with emphasis on dimensions with scores under 70%
+                  const priorityOrder = results.dimensionScores[idx] < 60 ? "high" :
+                                        results.dimensionScores[idx] < 70 ? "medium" : "low";
                   
                   return (
                     <div key={`res-section-${idx}`} className="mb-8">
                       <div className="flex items-center mb-4">
                         <h3 className="text-xl font-bold mr-3">{dimension.title}</h3>
-                        {priorityOrder === "alta" && (
-                          <span className="bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-0.5 rounded">Prioridad Alta</span>
+                        {priorityOrder === "high" && (
+                          <span className="bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-0.5 rounded">High Priority</span>
                         )}
-                        {priorityOrder === "media" && (
-                          <span className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded">Prioridad Media</span>
+                        {priorityOrder === "medium" && (
+                          <span className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded">Medium Priority</span>
                         )}
                       </div>
                       <div className="grid md:grid-cols-2 gap-4">
@@ -865,35 +875,35 @@ function Results() {
                 })}
                 
                 <div className="mt-8 bg-blue-50 p-6 rounded-lg">
-                  <h3 className="text-xl font-bold mb-3 text-blue-800">Plan de Desarrollo Personalizado</h3>
+                  <h3 className="text-xl font-bold mb-3 text-blue-800">Personalized Development Plan</h3>
                   <p className="mb-4">
-                    Para maximizar tu crecimiento profesional, te recomendamos:
+                    To maximize your professional growth, we recommend:
                   </p>
                   <ol className="space-y-2 ml-5 list-decimal">
-                    <li className="ml-2">Identifica 2-3 dimensiones prioritarias basadas en tus resultados</li>
-                    <li className="ml-2">Selecciona recursos específicos para cada una de estas dimensiones</li>
-                    <li className="ml-2">Establece objetivos SMART para tu desarrollo profesional</li>
-                    <li className="ml-2">Busca un mentor especializado en marketing de influencers</li>
-                    <li className="ml-2">Revisa tu progreso cada 3-6 meses</li>
+                    <li className="ml-2">Identify 2-3 priority dimensions based on your results</li>
+                    <li className="ml-2">Select specific resources for each of these dimensions</li>
+                    <li className="ml-2">Establish SMART objectives for your professional development</li>
+                    <li className="ml-2">Seek a mentor specialized in influencer marketing</li>
+                    <li className="ml-2">Review your progress every 3-6 months</li>
                   </ol>
                 </div>
               </div>
             )}
             
-            {/* Botones de acción */}
+            {/* Action buttons */}
             <div className="mt-12 flex flex-wrap gap-4 justify-center">
               <Button 
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2"
                 onClick={() => window.print()}
               >
                 <Download className="w-5 h-5" />
-                Descargar Resultados
+                Download Results
               </Button>
               <Button 
                 className="bg-gray-800 hover:bg-gray-900 text-white px-6 py-3 rounded-lg flex items-center gap-2"
                 onClick={() => window.location.href = '/'}
               >
-                Volver al Inicio
+                Back to Home
               </Button>
             </div>
           </div>
@@ -907,7 +917,7 @@ export default function ResultsPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-2xl">Cargando...</div>
+        <div className="text-2xl">Loading...</div>
       </div>
     }>
       <Results />
