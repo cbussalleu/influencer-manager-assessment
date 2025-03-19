@@ -1,9 +1,8 @@
-
 import { sql } from '@vercel/postgres';
 
 export async function createAssessmentResult(results) {
   try {
-    // Log de depuración para ver las credenciales que se están usando
+    // Debug log to see credentials being used
     console.log('Database connection info:', {
       host: process.env.POSTGRES_HOST || 'not set',
       user: process.env.POSTGRES_USER || 'not set',
@@ -25,11 +24,11 @@ export async function createAssessmentResult(results) {
       userEmail
     } = results;
     
-    // Usar cualquier versión del ID que esté disponible
+    // Use any version of the ID that is available
     const finalResponseId = response_id || responseId;
     const finalTotalScore = totalScore || total_score || 0;
-    const finalMasteryLevel = masteryLevel || mastery_level || { level: 1, description: "Principiante" };
-    const finalDimensionScores = dimensionScores || dimension_scores || [0,0,0,0,0,0];
+    const finalMasteryLevel = masteryLevel || mastery_level || { level: 1, description: "Basic" };
+    const finalDimensionScores = dimensionScores || dimension_scores || [0,0,0,0,0,0,0];
     
     if (!finalResponseId) {
       throw new Error('Response ID is required');
@@ -45,7 +44,7 @@ export async function createAssessmentResult(results) {
       userEmail: userEmail || ''
     });
     
-    // Nueva consulta SQL que incluye userName y userEmail
+    // New SQL query that includes userName and userEmail
     const query = `
       INSERT INTO assessment_results 
       (response_id, total_score, mastery_level, dimension_scores, recommendations, user_name, user_email, created_at)
@@ -91,7 +90,7 @@ export async function getAssessmentResultByResponseId(responseId) {
     }
     console.log('Looking for results with responseId:', responseId);
     
-    // Actualizada para incluir user_name y user_email
+    // Updated to include user_name and user_email
     const query = `
       SELECT 
         response_id, 
@@ -110,9 +109,9 @@ export async function getAssessmentResultByResponseId(responseId) {
     
     const result = await sql.query(query, [responseId]);
     
-    // Función para parsear JSON de manera segura
+    // Function to safely parse JSON
     const safeParseJSON = (input, defaultValue = null) => {
-      // Si ya es un objeto, devolverlo directamente
+      // If it's already an object, return it directly
       if (typeof input === 'object' && input !== null) {
         return input;
       }
@@ -143,8 +142,8 @@ export async function getAssessmentResultByResponseId(responseId) {
     return {
       responseId: row.response_id,
       totalScore: row.total_score,
-      masteryLevel: safeParseJSON(row.mastery_level, { level: 1, description: "No determinado" }),
-      dimensionScores: safeParseJSON(row.dimension_scores, [0,0,0,0,0,0]),
+      masteryLevel: safeParseJSON(row.mastery_level, { level: 1, description: "Not determined" }),
+      dimensionScores: safeParseJSON(row.dimension_scores, [0,0,0,0,0,0,0]),
       recommendations: safeParseJSON(row.recommendations, {}),
       userName: row.user_name || '',
       userEmail: row.user_email || '',
