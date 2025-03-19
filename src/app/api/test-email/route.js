@@ -1,88 +1,66 @@
 import { NextResponse } from 'next/server';
-import { sendInterviewerEmail } from '@/lib/email';
 import sgMail from '@sendgrid/mail';
 
 export async function GET(request) {
   try {
     console.log('Test email endpoint called');
     
-    // Verificar la configuración de SendGrid
+    // Verify SendGrid API key is set
     const apiKey = process.env.SENDGRID_API_KEY;
-    const senderEmail = process.env.SENDGRID_SENDER_EMAIL;
-    
-    // Crear un objeto de resultados de prueba más completo
-    const testResult = {
-      responseId: 'test-response-id',
-      totalScore: 75.5,
-      masteryLevel: {
-        description: 'Advanced: High performance with sophisticated methodologies'
-      },
-      dimensionScores: [80, 70, 75, 85, 65, 80, 75],
-      userName: 'Test User',
-      userEmail: 'test@example.com',
-      recommendations: {
-        description: 'Based on your assessment, you show strong capabilities in multiple dimensions of influencer marketing.',
-        generalRecommendations: [
-          'Continue developing your strategic influencer selection skills',
-          'Focus on advanced data analysis techniques',
-          'Explore innovative approaches in digital ecosystem adaptation'
-        ]
-      },
-      createdAt: new Date().toISOString()
-    };
-    
-    // Obtener el correo de destino de las variables de entorno o usar un valor por defecto
-    const targetEmail = process.env.TEST_EMAIL || process.env.INTERVIEWER_EMAIL || 'christian.bussalleu@gmail.com';
-    
-    console.log('Attempting to send test email to:', targetEmail);
-    console.log('SendGrid configuration:', {
-      apiKeyExists: !!apiKey,
-      apiKeyLength: apiKey ? apiKey.length : 0,
-      senderEmail: senderEmail || 'Not configured',
-      targetEmail
-    });
-    
-    // Simple validation test
-    try {
-      sgMail.setApiKey(apiKey);
-      // This is a direct API check without sending an email
-      await sgMail.validate();
-      console.log('SendGrid API key validation successful');
-    } catch (validationError) {
-      console.error('SendGrid API key validation failed:', validationError.message);
+    if (!apiKey) {
       return NextResponse.json({ 
         success: false,
-        message: 'SendGrid API key validation failed',
-        error: validationError.message,
-        suggestion: 'Please check your SendGrid API key configuration'
-      }, { status: 400 });
-    }
-    
-    // Intentar enviar el correo electrónico
-    const emailResult = await sendInterviewerEmail(testResult, targetEmail);
-    
-    if (emailResult) {
-      console.log('Test email sent successfully');
-      return NextResponse.json({ 
-        success: true,
-        message: 'Test email sent successfully',
-        sentTo: targetEmail
-      });
-    } else {
-      console.log('Test email failed to send');
-      return NextResponse.json({ 
-        success: false,
-        message: 'Failed to send test email. Check server logs for details.',
-        sentTo: targetEmail
+        message: 'SendGrid API key is not configured'
       }, { status: 500 });
     }
     
-  } catch (error) {
-    console.error('Error in test-email endpoint:', error);
+    // Get the sender and target emails
+    const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'notifications@influencer-assessment.com';
+    const toEmail = process.env.TEST_EMAIL || process.env.INTERVIEWER_EMAIL || 'christian.bussalleu@gmail.com';
+    
+    console.log('Email configuration:', {
+      fromEmail,
+      toEmail,
+      apiKeyExists: !!apiKey
+    });
+    
+    // Set the API key
+    sgMail.setApiKey(apiKey);
+    
+    // Create a simple test email
+    const msg = {
+      to: toEmail,
+      from: {
+        email: fromEmail,
+        name: 'Influencer Assessment Test'
+      },
+      subject: 'SendGrid API Test Email',
+      text: 'This is a test email to verify SendGrid API configuration',
+      html: '<p>This is a test email to verify SendGrid API configuration</p>'
+    };
+    
+    // Send the email
+    const response = await sgMail.send(msg);
+    
     return NextResponse.json({ 
+      success: true,
+      message: 'Test email sent successfully',
+      sentTo: toEmail,
+      from: fromEmail
+    });
+    
+  } catch (error) {
+    console.error('Error in test-email endpoint:', {
+      message: error.message,
+      code: error.code,
+      responseBody: error.response ? JSON.stringify(error.response.body) : 'No response'
+    });
+    
+    return NextResponse.json({ 
+      success: false,
       error: 'Error sending test email',
       details: error.message,
-      stack: error.stack.split('\n').slice(0, 3).join('\n')
+      code: error.code
     }, { status: 500 });
   }
 }
