@@ -3,17 +3,46 @@ import nodemailer from 'nodemailer';
 
 export async function sendInterviewerEmail(result, interviewerEmail) {
   try {
-    // Configure transporter with OAuth2
+    // Depuración de variables de entorno
+    console.log('Email configuration check:');
+    console.log('- GMAIL_USER set:', !!process.env.GMAIL_USER);
+    console.log('- GMAIL_CLIENT_ID set:', !!process.env.GMAIL_CLIENT_ID);
+    console.log('- GMAIL_CLIENT_SECRET set:', !!process.env.GMAIL_CLIENT_SECRET);
+    console.log('- GMAIL_REFRESH_TOKEN set:', !!process.env.GMAIL_REFRESH_TOKEN);
+    console.log('- Recipient email:', interviewerEmail);
+
+    // Configure transporter with OAuth2 (configuración actualizada)
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true, // use SSL
       auth: {
         type: 'OAuth2',
         user: process.env.GMAIL_USER,
         clientId: process.env.GMAIL_CLIENT_ID,
         clientSecret: process.env.GMAIL_CLIENT_SECRET,
         refreshToken: process.env.GMAIL_REFRESH_TOKEN
-      }
+      },
+      debug: true // Para ver logs detallados
     });
+
+    // Verificar la conexión antes de intentar enviar
+    try {
+      await new Promise((resolve, reject) => {
+        transporter.verify(function(error, success) {
+          if (error) {
+            console.error('Transporter verification failed:', error);
+            reject(error);
+          } else {
+            console.log('SMTP connection verified successfully');
+            resolve(success);
+          }
+        });
+      });
+    } catch (verifyError) {
+      console.error('Could not verify SMTP connection:', verifyError);
+      // Continuamos de todos modos porque a veces verify falla pero send funciona
+    }
 
     // Extract information from result
     const { 
@@ -39,14 +68,14 @@ export async function sendInterviewerEmail(result, interviewerEmail) {
     // Generate interview questions
     const interviewQuestions = generateInterviewQuestions(dimensionScores, dimensionNames);
 
-    // Send email
-    const info = await transporter.sendMail({
+    // Construct email options
+    const mailOptions = {
       from: `"Influencer Manager Assessment" <${process.env.GMAIL_USER}>`,
       to: interviewerEmail,
-      subject: `Assessment Results: ${userName} for Influencer Manager Position`,
+      subject: `Assessment Results: ${userName || 'Candidate'} for Influencer Manager Position`,
       html: `
-        <h2>Assessment Summary for ${userName}</h2>
-        <p>Email: ${userEmail}</p>
+        <h2>Assessment Summary for ${userName || 'Candidate'}</h2>
+        <p>Email: ${userEmail || 'Not provided'}</p>
 
         <h3>OVERALL SUMMARY:</h3>
         <p><strong>Total Score:</strong> ${totalScore}%</p>
@@ -68,19 +97,44 @@ export async function sendInterviewerEmail(result, interviewerEmail) {
 
         <p><a href="${process.env.NEXT_PUBLIC_BASE_URL}/results?response_id=${responseId}">View full report</a></p>
       `
+    };
+
+    console.log('Attempting to send email with the following options:', {
+      from: mailOptions.from,
+      to: mailOptions.to,
+      subject: mailOptions.subject
     });
 
-    console.log('Email sent to interviewer:', info.messageId);
+    // Send email with promise wrapper para mejor manejo de errores
+    const info = await new Promise((resolve, reject) => {
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error('Error in sendMail callback:', error);
+          reject(error);
+        } else {
+          resolve(info);
+        }
+      });
+    });
+
+    console.log('Email sent successfully:', info.messageId);
     return true;
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('Detailed error sending email:', {
+      message: error.message,
+      code: error.code,
+      command: error.command,
+      stack: error.stack
+    });
+    
+    // No lanzamos el error para que no bloquee el flujo principal
+    // Pero devolvemos false para indicar que falló
     return false;
   }
 }
 
 // Function to generate interview questions based on strengths/weaknesses
 function generateInterviewQuestions(scores, dimensionNames) {
-  // Same code as before
   const questions = [];
   
   // Identify strongest and weakest dimensions
@@ -107,7 +161,6 @@ function generateInterviewQuestions(scores, dimensionNames) {
 }
 
 function getSpecificQuestion(dimensionIndex, type) {
-  // Same code as before, but translated to English
   const weakQuestions = [
     "strategies for cultivating solid relationships with influencers and what challenges they've faced in this aspect",
     "the aspects of digital marketing they consider most relevant for influencer campaigns",
@@ -126,5 +179,7 @@ function getSpecificQuestion(dimensionIndex, type) {
     "how they've handled communication in crisis or sensitive situations"
   ];
   
-  return type === 'weak' ? weakQuestions[dimensionIndex] : strongQuestions[dimensionIndex];
+  // Asegurarse de que el índice no esté fuera de rango
+  const safeIndex = dimensionIndex % weakQuestions.length;
+  return type === 'weak' ? weakQuestions[safeIndex] : strongQuestions[safeIndex];
 }
