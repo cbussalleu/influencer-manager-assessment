@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createAssessmentResult } from '@/lib/models/assessment';
-// Importante: NO importamos ninguna funcionalidad de email aquí
+// ¡Importante! NO importamos ninguna funcionalidad de email directamente
 
 export const dynamic = 'force-dynamic';
 
@@ -62,6 +62,36 @@ function extractUserData(formResponse) {
   return { userName, userEmail };
 }
 
+// Función auxiliar para activar el envío de email de forma separada
+async function triggerEmailNotification(responseId) {
+  try {
+    // Determinamos la URL base para la llamada al endpoint
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
+                  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 
+                  'http://localhost:3000';
+    
+    // Construimos la URL completa para el endpoint de notificación
+    const notifyUrl = `${baseUrl}/api/manual-notify?response_id=${responseId}`;
+    
+    console.log('Triggering email notification via separate HTTP call:', notifyUrl);
+    
+    // Realizamos la llamada HTTP al endpoint de notificación
+    const response = await fetch(notifyUrl);
+    const result = await response.json();
+    
+    if (response.ok) {
+      console.log('Email notification triggered successfully:', result);
+      return { success: true };
+    } else {
+      console.error('Failed to trigger email notification:', result);
+      return { success: false, error: result.error };
+    }
+  } catch (error) {
+    console.error('Error triggering email notification:', error);
+    return { success: false, error: error.message };
+  }
+}
+
 export async function POST(request) {
   console.log('Webhook POST request received');
   
@@ -99,10 +129,14 @@ export async function POST(request) {
     const savedResult = await createAssessmentResult(results);
     console.log('Results saved to database');
     
-    // IMPORTANTE: NO intentes enviar correos desde aquí
-    // En lugar de eso, registramos que necesitamos notificar sobre este resultado
-    console.log('New assessment result saved. To send email manually, visit:');
-    console.log(`/api/manual-notify?response_id=${response_id}`);
+    // AUTOMATIZACIÓN: Después de guardar los datos, activamos el email mediante una llamada HTTP separada
+    console.log('Attempting to trigger email notification for response ID:', response_id);
+    triggerEmailNotification(response_id).catch(error => {
+      console.error('Failed to trigger email notification:', error);
+    });
+    
+    // No esperamos a que se complete el envío del email para devolver la respuesta
+    // Esto hace más robusto el proceso y evita tiempos de espera innecesarios
 
     // Construir URL de redirección
     const redirectUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://influencer-manager-assessment.vercel.app'}/results?response_id=${response_id}`;
@@ -110,9 +144,7 @@ export async function POST(request) {
     return NextResponse.json({ 
       success: true,
       redirectUrl,
-      responseId: response_id,
-      // Incluimos un mensaje que advierte que el email debe ser enviado manualmente
-      notice: "Email notification will be sent separately"
+      responseId: response_id
     });
 
   } catch (error) {
