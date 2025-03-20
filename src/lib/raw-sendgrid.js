@@ -1,26 +1,26 @@
 /**
- * Servicio para enviar emails directamente usando la API REST de SendGrid
- * No usa @sendgrid/mail para evitar cualquier dependencia que pudiera usar OAuth
+ * Service for sending emails directly using the SendGrid REST API
+ * Doesn't use @sendgrid/mail to avoid any dependency that might use OAuth
  */
 
 /**
- * Selecciona preguntas de entrevista basadas en puntuaciones
- * @param {Array} dimensionScores - Puntuaciones por dimensión
- * @returns {Object} - Preguntas seleccionadas para fortalezas y debilidades
+ * Selects interview questions based on scores
+ * @param {Array} dimensionScores - Scores by dimension
+ * @returns {Object} - Selected questions for strengths and weaknesses
  */
 function selectInterviewQuestions(dimensionScores) {
   const strengths = [];
   const weaknesses = [];
   
-  // Determinar fortalezas y debilidades
+  // Determine strengths and weaknesses
   const dimensionNames = [
-    "Selección Estratégica de Influencers",
-    "Gestión de Contenido y Campañas",
-    "Comprensión de Audiencias",
-    "Cultivo de Autenticidad y Transparencia",
-    "Análisis y Optimización",
-    "Adaptabilidad al Ecosistema Digital",
-    "Gestión de Relaciones"
+    "Strategic Influencer Selection",
+    "Content & Campaign Management",
+    "Audience Understanding",
+    "Authenticity Cultivation",
+    "Analysis & Optimization",
+    "Digital Ecosystem Adaptability",
+    "Relationship Management"
   ];
   
   dimensionScores.forEach((score, index) => {
@@ -32,115 +32,115 @@ function selectInterviewQuestions(dimensionScores) {
     }
   });
   
-  // Banco de preguntas por dimensión
+  // Question bank by dimension
   const questions = {
-    // Selección Estratégica de Influencers
+    // Strategic Influencer Selection
     0: {
       strengths: [
-        "Describa un proceso específico que haya desarrollado para evaluar la alineación de valores entre influencers y una marca de consumo masivo.",
-        "Cuénteme sobre una ocasión en que rechazó trabajar con un influencer popular debido a preocupaciones de congruencia con la marca. ¿Cómo defendió esta decisión?",
-        "¿Puede compartir una metodología específica que haya implementado para analizar la audiencia de un influencer más allá de las demografías básicas?"
+        "Describe a specific process you've developed to evaluate value alignment between influencers and a mass consumer brand.",
+        "Tell me about a time when you rejected working with a popular influencer due to brand congruence concerns. How did you defend this decision?",
+        "Can you share a specific methodology you've implemented to analyze an influencer's audience beyond basic demographics?"
       ],
       weaknesses: [
-        "¿Qué recursos o formación considera necesarios para mejorar su capacidad de evaluación de congruencia influencer-marca?",
-        "¿Cómo planea desarrollar un enfoque más sistemático para la verificación de autenticidad de influencers?",
-        "Si tuviera acceso a herramientas analíticas avanzadas, ¿qué nuevos criterios implementaría en su proceso de selección?"
+        "What resources or training do you consider necessary to improve your influencer-brand congruence evaluation capability?",
+        "How do you plan to develop a more systematic approach for influencer authenticity verification?",
+        "If you had access to advanced analytical tools, what new criteria would you implement in your selection process?"
       ]
     },
-    // Gestión de Contenido y Campañas
+    // Content & Campaign Management
     1: {
       strengths: [
-        "Comparta un ejemplo de briefing que considere particularmente exitoso. ¿Qué elementos clave incluyó que facilitaron contenido auténtico y alineado con la marca?",
-        "Describa una situación compleja de coordinación de campaña multinacional. ¿Qué sistemas implementó para garantizar coherencia manteniendo relevancia local?",
-        "¿Cómo ha integrado específicamente campañas de influencers con otros canales de marketing para amplificar resultados?"
+        "Share an example of a briefing you consider particularly successful. What key elements did you include that facilitated authentic content aligned with the brand?",
+        "Describe a complex multinational campaign coordination situation. What systems did you implement to ensure coherence while maintaining local relevance?",
+        "How have you specifically integrated influencer campaigns with other marketing channels to amplify results?"
       ],
       weaknesses: [
-        "¿Qué aspectos de su proceso de aprobación de contenido considera que necesitan optimización?",
-        "¿Qué herramientas o metodologías está considerando implementar para mejorar la gestión de campañas internacionales?",
-        "¿Cómo planea mejorar su capacidad para balancear el control de marca con la autenticidad del influencer?"
+        "What aspects of your content approval process do you think need optimization?",
+        "What tools or methodologies are you considering implementing to improve international campaign management?",
+        "How do you plan to improve your ability to balance brand control with influencer authenticity?"
       ]
     },
-    // Comprensión de Audiencias
+    // Audience Understanding
     2: {
       strengths: [
-        "Describa un insight específico sobre comportamiento de audiencia que descubrió a través de análisis de datos y cómo transformó una estrategia de influencers.",
-        "¿Puede compartir una metodología que haya desarrollado para evaluar la resonancia emocional del contenido de influencers?",
-        "Explique cómo ha segmentado audiencias de influencers para personalizar mensajes en una campaña específica."
+        "Describe a specific audience behavior insight you discovered through data analysis and how it transformed an influencer strategy.",
+        "Can you share a methodology you've developed to evaluate the emotional resonance of influencer content?",
+        "Explain how you've segmented influencer audiences to personalize messages in a specific campaign."
       ],
       weaknesses: [
-        "¿Qué limitaciones encuentra en sus métodos actuales de análisis de audiencia y cómo planea superarlas?",
-        "¿Qué formación o recursos está buscando para profundizar su comprensión de insights culturales relevantes para audiencias globales?",
-        "¿Cómo planea mejorar su capacidad de predicción del comportamiento de audiencias?"
+        "What limitations do you find in your current audience analysis methods and how do you plan to overcome them?",
+        "What training or resources are you seeking to deepen your understanding of cultural insights relevant for global audiences?",
+        "How do you plan to improve your ability to predict audience behavior?"
       ]
     },
-    // Cultivo de Autenticidad y Transparencia
+    // Authenticity Cultivation
     3: {
       strengths: [
-        "Describa una estrategia específica que haya implementado para fomentar conexiones genuinas entre influencers y marcas.",
-        "Comparta un ejemplo donde haya manejado una situación que potencialmente comprometía la percepción de autenticidad. ¿Qué acciones tomó?",
-        "¿Cómo ha logrado integrar requisitos de divulgación comercial sin afectar la naturalidad del contenido?"
+        "Describe a specific strategy you've implemented to foster genuine connections between influencers and brands.",
+        "Share an example where you handled a situation that potentially compromised authenticity perception. What actions did you take?",
+        "How have you managed to integrate commercial disclosure requirements without affecting content naturalness?"
       ],
       weaknesses: [
-        "¿Qué enfoques está considerando para fortalecer la motivación intrínseca de los influencers hacia las marcas que representa?",
-        "¿Cómo planea mejorar sus protocolos de gestión de controversias relacionadas con autenticidad?",
-        "¿Qué recursos o conocimientos busca adquirir para equilibrar mejor los objetivos comerciales y la expresión auténtica?"
+        "What approaches are you considering to strengthen influencers' intrinsic motivation toward the brands you represent?",
+        "How do you plan to improve your authenticity-related controversy management protocols?",
+        "What resources or knowledge do you seek to better balance commercial objectives and authentic expression?"
       ]
     },
-    // Análisis y Optimización
+    // Analysis & Optimization
     4: {
       strengths: [
-        "Describa un modelo de atribución que haya desarrollado para vincular actividades de influencers con resultados de negocio.",
-        "Comparta un ejemplo específico donde el análisis de datos le permitió optimizar significativamente el rendimiento de una campaña.",
-        "¿Qué KPIs personalizados ha creado para evaluar el éxito de campañas de influencers más allá de métricas estándar?"
+        "Describe an attribution model you've developed to link influencer activities with business results.",
+        "Share a specific example where data analysis allowed you to significantly optimize campaign performance.",
+        "What customized KPIs have you created to evaluate influencer campaign success beyond standard metrics?"
       ],
       weaknesses: [
-        "¿Qué limitaciones identifica en sus métodos actuales de análisis y cómo planea superarlas?",
-        "¿Qué tecnologías o metodologías está explorando para mejorar sus capacidades de atribución?",
-        "¿Cómo planea evolucionar sus procesos de mejora continua basados en datos?"
+        "What limitations do you identify in your current analysis methods and how do you plan to overcome them?",
+        "What technologies or methodologies are you exploring to improve your attribution capabilities?",
+        "How do you plan to evolve your data-based continuous improvement processes?"
       ]
     },
-    // Adaptabilidad al Ecosistema Digital
+    // Digital Ecosystem Adaptability
     5: {
       strengths: [
-        "Describa una tendencia emergente que identificó tempranamente y cómo la integró en su estrategia antes que se volviera mainstream.",
-        "Comparta un ejemplo de cómo adaptó rápidamente una estrategia ante un cambio significativo de algoritmo en una plataforma clave.",
-        "¿Qué fuentes y métodos utiliza para mantenerse a la vanguardia de innovaciones en el ecosistema digital?"
+        "Describe an emerging trend you identified early and how you integrated it into your strategy before it became mainstream.",
+        "Share an example of how you quickly adapted a strategy in response to a significant algorithm change on a key platform.",
+        "What sources and methods do you use to stay at the forefront of innovations in the digital ecosystem?"
       ],
       weaknesses: [
-        "¿Qué tecnologías emergentes está estudiando actualmente para anticipar su impacto en el influencer marketing?",
-        "¿Cómo planea estructurar procesos de experimentación con nuevas plataformas o formatos?",
-        "¿Qué recursos o formación busca para mejorar su velocidad de adaptación ante cambios disruptivos?"
+        "What emerging technologies are you currently studying to anticipate their impact on influencer marketing?",
+        "How do you plan to structure experimentation processes with new platforms or formats?",
+        "What resources or training do you seek to improve your adaptation speed to disruptive changes?"
       ]
     },
-    // Gestión de Relaciones
+    // Relationship Management
     6: {
       strengths: [
-        "Describa un programa de embajadores de marca que haya desarrollado. ¿Qué elementos considera clave para su éxito?",
-        "Comparta un ejemplo de cómo transformó una relación inicialmente transaccional en una alianza estratégica a largo plazo.",
-        "¿Puede describir una situación compleja de negociación y cómo logró un resultado mutuamente beneficioso?"
+        "Describe a brand ambassador program you've developed. What elements do you consider key to its success?",
+        "Share an example of how you transformed an initially transactional relationship into a long-term strategic alliance.",
+        "Can you describe a complex negotiation situation and how you achieved a mutually beneficial outcome?"
       ],
       weaknesses: [
-        "¿Qué aspectos de su comunicación con influencers considera que necesitan mejora?",
-        "¿Cómo planea evolucionar sus estrategias de desarrollo de relaciones a largo plazo?",
-        "¿Qué habilidades específicas de negociación o resolución de conflictos está buscando desarrollar?"
+        "What aspects of your communication with influencers do you think need improvement?",
+        "How do you plan to evolve your long-term relationship development strategies?",
+        "What specific negotiation or conflict resolution skills are you looking to develop?"
       ]
     }
   };
   
-  // Seleccionar preguntas para cada fortaleza
+  // Select questions for each strength
   const strengthQuestions = strengths.map(strength => {
     const dimQuestions = questions[strength.index].strengths;
-    const selectedQuestions = dimQuestions.slice(0, 2); // Tomar las primeras 2 preguntas
+    const selectedQuestions = dimQuestions.slice(0, 2); // Take the first 2 questions
     return {
       dimension: strength.name,
       questions: selectedQuestions
     };
   });
   
-  // Seleccionar preguntas para cada debilidad
+  // Select questions for each weakness
   const weaknessQuestions = weaknesses.map(weakness => {
     const dimQuestions = questions[weakness.index].weaknesses;
-    const selectedQuestions = dimQuestions.slice(0, 2); // Tomar las primeras 2 preguntas
+    const selectedQuestions = dimQuestions.slice(0, 2); // Take the first 2 questions
     return {
       dimension: weakness.name,
       questions: selectedQuestions
@@ -154,61 +154,57 @@ function selectInterviewQuestions(dimensionScores) {
 }
 
 /**
- * Envía un email usando directamente la API REST de SendGrid
+ * Sends an email directly using the SendGrid REST API
  * 
- * @param {object} result - Los resultados de la evaluación
- * @param {string} recipientEmail - Dirección de correo del destinatario
- * @returns {Promise<boolean>} - true si el envío fue exitoso, false en caso contrario
+ * @param {object} result - The assessment results
+ * @param {string} recipientEmail - Recipient email address
+ * @returns {Promise<boolean>} - true if sending was successful, false otherwise
  */
 export async function sendDirectEmail(result, recipientEmail) {
   try {
     console.log('Raw SendGrid: Starting to send email...');
     
-    // Verificar API key
+    // Verify API key
     const apiKey = process.env.SENDGRID_API_KEY;
     if (!apiKey) {
       console.error('Raw SendGrid: Missing API key');
       return false;
     }
     
-    // Verificar email remitente
+    // Verify sender email
     const senderEmail = process.env.SENDGRID_SENDER_EMAIL;
     if (!senderEmail) {
       console.error('Raw SendGrid: Missing sender email');
       return false;
     }
     
-    // Verificar datos del resultado
+    // Verify result data
     if (!result) {
       console.error('Raw SendGrid: Invalid result data');
       return false;
     }
     
-    // Extraer información del resultado
-    const userName = result.userName || 'Anonymous User';
+    // Extract information from the result
+    const userName = result.userName || 'Unknown User';
     const totalScore = result.totalScore || 0;
     const masteryLevel = result.masteryLevel || { description: 'Not Available' };
     const dimensionScores = result.dimensionScores || [];
-    const recommendations = result.recommendations || { 
-      description: 'No recommendations available',
-      generalRecommendations: []
-    };
     const responseId = result.responseId || result.response_id || 'Unknown ID';
     
-    // Seleccionar preguntas para la entrevista
+    // Select questions for the interview
     const interviewQuestions = selectInterviewQuestions(dimensionScores);
     
-    // Construir el contenido HTML
+    // Build the HTML content
     const htmlContent = `
-      <h2>Resumen de Resultados de la Evaluación: ${userName}</h2>
+      <h2>Assessment Results Summary: ${userName}</h2>
       
-      <p>Este es el resumen de resultados de la evaluación de <strong>${userName}</strong> para la posición de Influencer Marketing Manager.</p>
+      <p>This is a summary of <strong>${userName}</strong>'s assessment results for the Influencer Marketing Manager position.</p>
       
-      <h3>RESUMEN GENERAL:</h3>
-      <p><strong>Puntuación Total:</strong> ${totalScore}%</p>
-      <p><strong>Nivel:</strong> ${masteryLevel.description}</p>
+      <h3>OVERALL SUMMARY:</h3>
+      <p><strong>Total Score:</strong> ${totalScore}%</p>
+      <p><strong>Level:</strong> ${masteryLevel.description}</p>
 
-      <h3>PUNTUACIONES POR DIMENSIÓN:</h3>
+      <h3>DIMENSION SCORES:</h3>
       <ul>
         ${dimensionScores.map((score, index) => {
           const dimensionName = getDimensionName(index);
@@ -220,9 +216,9 @@ export async function sendDirectEmail(result, recipientEmail) {
         }).join('')}
       </ul>
 
-      <h3>FORTALEZAS Y ÁREAS DE MEJORA:</h3>
+      <h3>STRENGTHS AND AREAS FOR IMPROVEMENT:</h3>
       <div style="margin-bottom: 20px;">
-        <h4 style="color: green;">Fortalezas:</h4>
+        <h4 style="color: green;">Strengths:</h4>
         <ul>
           ${dimensionScores.map((score, index) => {
             if (score >= 70) {
@@ -232,7 +228,7 @@ export async function sendDirectEmail(result, recipientEmail) {
           }).filter(Boolean).join('')}
         </ul>
         
-        <h4 style="color: orange;">Áreas de mejora:</h4>
+        <h4 style="color: orange;">Areas for improvement:</h4>
         <ul>
           ${dimensionScores.map((score, index) => {
             if (score <= 50) {
@@ -243,10 +239,10 @@ export async function sendDirectEmail(result, recipientEmail) {
         </ul>
       </div>
 
-      <h3>PREGUNTAS SUGERIDAS PARA LA ENTREVISTA:</h3>
+      <h3>SUGGESTED INTERVIEW QUESTIONS:</h3>
       
       <div style="margin-bottom: 20px;">
-        <h4 style="color: green;">Preguntas para validar fortalezas:</h4>
+        <h4 style="color: green;">Questions to validate strengths:</h4>
         ${interviewQuestions.strengths.length > 0 ? 
           interviewQuestions.strengths.map(item => `
             <div style="margin-bottom: 15px;">
@@ -256,12 +252,12 @@ export async function sendDirectEmail(result, recipientEmail) {
               </ul>
             </div>
           `).join('') : 
-          '<p>No se identificaron fortalezas significativas.</p>'
+          '<p>No significant strengths identified.</p>'
         }
       </div>
       
       <div style="margin-bottom: 20px;">
-        <h4 style="color: orange;">Preguntas para explorar planes de desarrollo:</h4>
+        <h4 style="color: orange;">Questions to explore development plans:</h4>
         ${interviewQuestions.weaknesses.length > 0 ? 
           interviewQuestions.weaknesses.map(item => `
             <div style="margin-bottom: 15px;">
@@ -271,27 +267,21 @@ export async function sendDirectEmail(result, recipientEmail) {
               </ul>
             </div>
           `).join('') : 
-          '<p>No se identificaron áreas de mejora significativas.</p>'
+          '<p>No significant areas for improvement identified.</p>'
         }
       </div>
 
-      <h3>RECOMENDACIONES:</h3>
-      <p>${recommendations.description}</p>
-
-      <ul>
-        ${recommendations.generalRecommendations?.map(rec => `
-          <li>${rec}</li>
-        `).join('') || '<li>No hay recomendaciones específicas disponibles.</li>'}
-      </ul>
-
+      <p style="margin-top: 30px; font-size: 16px;">
+        <strong>See ${userName}'s full results:</strong>
+      </p>
       <p>
-        <a href="${process.env.NEXT_PUBLIC_BASE_URL || ''}/results?response_id=${responseId}">
-          Ver informe completo
+        <a href="${process.env.NEXT_PUBLIC_BASE_URL || ''}/results?response_id=${responseId}" style="display: inline-block; padding: 10px 20px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+          View Complete Assessment
         </a>
       </p>
     `;
     
-    // Construir el payload para la API de SendGrid
+    // Build the payload for the SendGrid API
     const data = {
       personalizations: [
         {
@@ -300,12 +290,12 @@ export async function sendDirectEmail(result, recipientEmail) {
               email: recipientEmail
             }
           ],
-          subject: `Resultados de Evaluación: ${userName} - Posición de Influencer Marketing Manager`
+          subject: `Assessment Results: ${userName} - Influencer Marketing Manager Position`
         }
       ],
       from: {
         email: senderEmail,
-        name: 'Evaluación de Influencer Marketing'
+        name: 'Influencer Marketing Assessment'
       },
       content: [
         {
@@ -317,7 +307,7 @@ export async function sendDirectEmail(result, recipientEmail) {
     
     console.log('Raw SendGrid: Preparing to send email to:', recipientEmail);
     
-    // Llamar directamente a la API REST de SendGrid
+    // Call the SendGrid REST API directly
     const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
       method: 'POST',
       headers: {
@@ -327,7 +317,7 @@ export async function sendDirectEmail(result, recipientEmail) {
       body: JSON.stringify(data)
     });
     
-    // Verificar respuesta
+    // Verify response
     if (response.ok) {
       console.log('Raw SendGrid: Email sent successfully');
       return true;
@@ -350,17 +340,17 @@ export async function sendDirectEmail(result, recipientEmail) {
   }
 }
 
-// Función auxiliar para obtener el nombre de la dimensión
+// Helper function to get the dimension name
 function getDimensionName(index) {
   const dimensions = [
-    "Selección Estratégica de Influencers",
-    "Gestión de Contenido y Campañas",
-    "Comprensión de Audiencias",
-    "Cultivo de Autenticidad y Transparencia",
-    "Análisis y Optimización",
-    "Adaptabilidad al Ecosistema Digital",
-    "Gestión de Relaciones"
+    "Strategic Influencer Selection",
+    "Content & Campaign Management",
+    "Audience Understanding",
+    "Authenticity Cultivation",
+    "Analysis & Optimization",
+    "Digital Ecosystem Adaptability",
+    "Relationship Management"
   ];
   
-  return dimensions[index] || `Dimensión ${index + 1}`;
+  return dimensions[index] || `Dimension ${index + 1}`;
 }
