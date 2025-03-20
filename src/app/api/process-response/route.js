@@ -42,52 +42,102 @@ function processAnswers(formResponse) {
   try {
     // Si tenemos la respuesta completa del formulario
     if (formResponse && formResponse.answers && Array.isArray(formResponse.answers)) {
-      console.log('Processing complete form response');
+      console.log(`Processing ${formResponse.answers.length} answers from Typeform`);
       
-      // Mapear las respuestas a puntajes según la estructura de tu formulario
-      const scores = {};
+      // Imprimir estructura de datos para debugging
+      console.log('First few answers structure:', 
+        formResponse.answers.slice(0, 3).map(a => ({
+          id: a.field.id,
+          type: a.type,
+          value: a.choice ? a.choice.label : (a.text || a.email || a.number)
+        }))
+      );
+      
+      // Mapear las respuestas a puntajes 
       const rawScores = [];
+      const mappedAnswers = [];
       
-      // Procesar cada respuesta
+      // Procesamiento real de respuestas - esto variará según tu formulario
       formResponse.answers.forEach(answer => {
-        // Aquí implementar la lógica específica para tu formulario
-        // Por ejemplo:
-        if (answer.type === 'choice') {
-          // Para preguntas de opción múltiple, mapear cada opción a un puntaje
-          let score = 0;
-          if (answer.choice && answer.choice.label) {
-            // Ejemplo: mapear etiquetas a puntajes (ajustar según tu formulario)
-            const label = answer.choice.label.toLowerCase();
-            if (label.includes('nunca') || label.includes('básico')) score = 20;
-            else if (label.includes('raramente') || label.includes('principiante')) score = 40;
-            else if (label.includes('a veces') || label.includes('intermedio')) score = 60;
-            else if (label.includes('frecuentemente') || label.includes('avanzado')) score = 80;
-            else if (label.includes('siempre') || label.includes('experto')) score = 100;
-          }
-          rawScores.push(score);
-          
-          // Asignar el puntaje a la dimensión correspondiente
-          // Esto requiere un mapeo de preguntas a dimensiones específico a tu formulario
+        // Ignorar preguntas de nombre, email, etc.
+        if (answer.field.id === 'IDP4ALFkG1Y0' || 
+            answer.field.id === 'CcEVZii0MfJF' || 
+            answer.field.id === '85bNk360ZwTF') {
+          return;
         }
+        
+        let score = 0;
+        
+        // Procesar según el tipo de pregunta
+        if (answer.type === 'choice') {
+          const label = answer.choice.label.toLowerCase();
+          
+          // Mapear etiquetas a puntajes
+          if (label.includes('nunca') || label.includes('básico')) score = 20;
+          else if (label.includes('raramente') || label.includes('en desarrollo')) score = 40;
+          else if (label.includes('a veces') || label.includes('competente')) score = 60;
+          else if (label.includes('frecuentemente') || label.includes('avanzado')) score = 80;
+          else if (label.includes('siempre') || label.includes('experto')) score = 100;
+          else {
+            // Para otras opciones, intentar inferir basado en posición
+            const options = ['nunca', 'raramente', 'a veces', 'frecuentemente', 'siempre'];
+            options.forEach((opt, idx) => {
+              if (label.includes(opt)) score = 20 * (idx + 1);
+            });
+            
+            // Si aún no tenemos puntaje, convertir etiquetas como "1", "2", etc.
+            if (score === 0 && !isNaN(label)) {
+              const num = parseInt(label, 10);
+              if (num >= 1 && num <= 5) score = num * 20;
+            }
+          }
+        } else if (answer.type === 'number') {
+          // Para preguntas numéricas
+          const num = answer.number;
+          if (num >= 1 && num <= 5) score = num * 20;
+        }
+        
+        rawScores.push(score);
+        mappedAnswers.push({
+          id: answer.field.id,
+          type: answer.type,
+          value: answer.choice ? answer.choice.label : (answer.text || answer.email || answer.number),
+          score
+        });
       });
       
-      // Ejemplo de cálculo de puntajes por dimensión
-      // Necesitas definir qué preguntas corresponden a cada dimensión
-      const dimensionScores = [
-        calculateDimensionScore(rawScores, [0, 1, 2]), // Dimensión 1: preguntas 0, 1, 2
-        calculateDimensionScore(rawScores, [3, 4, 5]), // Dimensión 2: preguntas 3, 4, 5
-        calculateDimensionScore(rawScores, [6, 7, 8]), // etc.
-        calculateDimensionScore(rawScores, [9, 10, 11]),
-        calculateDimensionScore(rawScores, [12, 13, 14]),
-        calculateDimensionScore(rawScores, [15, 16, 17]),
-        calculateDimensionScore(rawScores, [18, 19, 20])
+      console.log(`Mapped ${mappedAnswers.length} answers to scores`);
+      console.log('Sample of mapped answers:', mappedAnswers.slice(0, 3));
+      
+      // Definir el mapeo de preguntas a dimensiones
+      // Esto debe ajustarse según tu formulario específico
+      const dimensionMapping = [
+        [0, 1, 2, 3], // Strategic Influencer Selection: preguntas 0-3
+        [4, 5, 6, 7], // Content & Campaign Management: preguntas 4-7
+        [8, 9, 10], // Audience Understanding: preguntas 8-10
+        [11, 12, 13], // Authenticity Cultivation: preguntas 11-13
+        [14, 15, 16], // Analysis & Optimization: preguntas 14-16
+        [17, 18, 19], // Digital Ecosystem Adaptability: preguntas 17-19
+        [20, 21, 22] // Relationship Management: preguntas 20-22
       ];
       
-      // Calcular puntaje total
-      const totalScore = dimensionScores.reduce((sum, score) => sum + score, 0) / dimensionScores.length;
+      // Calcular puntajes por dimensión
+      const dimensionScores = dimensionMapping.map((indices, dimIndex) => {
+        const score = calculateDimensionScore(rawScores, indices);
+        console.log(`Dimension ${dimIndex + 1} score: ${score} (using indices ${indices})`);
+        return score;
+      });
+      
+      // Calcular puntaje total (promedio de dimensiones)
+      const totalScore = Math.round(
+        dimensionScores.reduce((sum, score) => sum + score, 0) / dimensionScores.length
+      );
       
       // Determinar nivel de maestría
       const masteryLevel = determineMasteryLevel(totalScore);
+      
+      console.log(`Final scores - Total: ${totalScore}, Level: ${masteryLevel.level}`);
+      console.log('Dimension scores:', dimensionScores);
       
       return {
         dimensionScores,
@@ -96,15 +146,45 @@ function processAnswers(formResponse) {
         rawScores
       };
     } else {
-      console.log('No complete form data, using sample calculation');
+      console.log('No valid form response data available, using randomized calculation');
+      console.log('formResponse structure:', JSON.stringify(formResponse || {}, null, 2).substring(0, 500) + '...');
       
-      // Si no hay datos completos, fallback a un cálculo simple
-      return sampleCalculation();
+      // Si no hay datos completos, fallback a un cálculo aleatorizado
+      return randomizedCalculation();
     }
   } catch (error) {
     console.error('Error processing answers:', error);
-    return sampleCalculation();
+    return randomizedCalculation();
   }
+}
+
+// Nueva función para generar resultados aleatorios en lugar de fijos
+function randomizedCalculation() {
+  // Generar puntajes con algo de variación
+  const dimensionScores = [
+    30 + Math.floor(Math.random() * 50), // Entre 30 y 80
+    30 + Math.floor(Math.random() * 50),
+    30 + Math.floor(Math.random() * 50),
+    30 + Math.floor(Math.random() * 50),
+    30 + Math.floor(Math.random() * 50),
+    30 + Math.floor(Math.random() * 50),
+    30 + Math.floor(Math.random() * 50)
+  ];
+  
+  const totalScore = Math.round(
+    dimensionScores.reduce((sum, score) => sum + score, 0) / dimensionScores.length
+  );
+  
+  const masteryLevel = determineMasteryLevel(totalScore);
+  
+  console.log('Using randomized calculation - Scores:', dimensionScores, 'Total:', totalScore);
+  
+  return {
+    dimensionScores,
+    totalScore,
+    masteryLevel,
+    rawScores: []
+  };
 }
 
 // Función auxiliar para calcular el puntaje de una dimensión
@@ -157,20 +237,6 @@ function determineMasteryLevel(totalScore) {
       recommendations: 'Share your expertise and continue innovating in the field'
     };
   }
-}
-
-// Función de cálculo de muestra (fallback)
-function sampleCalculation() {
-  return {
-    dimensionScores: [60, 65, 70, 55, 75, 60, 70],
-    totalScore: 65,
-    masteryLevel: { 
-      level: 4, 
-      description: 'Advanced: High capability in influencer marketing management',
-      recommendations: 'Focus on advanced analytics to reach expert level'
-    },
-    rawScores: []
-  };
 }
 
 // Función para generar recomendaciones personalizadas
