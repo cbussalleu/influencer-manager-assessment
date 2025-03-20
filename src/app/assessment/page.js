@@ -54,9 +54,10 @@ export default function AssessmentForm() {
                 </style>
               `;
               
+              // Redirigir a process-response en lugar de directamente a results
               setTimeout(() => {
-                window.location.href = `/results?response_id=${response_id}`;
-              }, 3000); // 3 segundos de retraso
+                window.location.href = `/api/process-response?response_id=${response_id}`;
+              }, 2000);
             } else {
               console.warn('No response ID found in submission event');
               window.location.href = '/results';
