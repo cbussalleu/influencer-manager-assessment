@@ -201,6 +201,142 @@ const MasteryLevelCard = ({ level, description, recommendations }) => {
   );
 };
 
+// Function to get interview questions for dimension (English version)
+function getInterviewQuestionsForDimension(dimensionIndex, type) {
+  const questionsBank = {
+    // Strategic Influencer Selection
+    0: {
+      strengths: [
+        "Describe a specific process you've developed to evaluate value alignment between influencers and a mass consumer brand.",
+        "Tell me about a time when you rejected working with a popular influencer due to brand congruence concerns. How did you defend this decision?",
+        "Can you share a specific methodology you've implemented to analyze an influencer's audience beyond basic demographics?"
+      ],
+      weaknesses: [
+        "What resources or training do you consider necessary to improve your influencer-brand congruence evaluation capability?",
+        "How do you plan to develop a more systematic approach for influencer authenticity verification?",
+        "If you had access to advanced analytical tools, what new criteria would you implement in your selection process?"
+      ]
+    },
+    // Content & Campaign Management
+    1: {
+      strengths: [
+        "Share an example of a briefing you consider particularly successful. What key elements did you include that facilitated authentic content aligned with the brand?",
+        "Describe a complex multinational campaign coordination situation. What systems did you implement to ensure coherence while maintaining local relevance?",
+        "How have you specifically integrated influencer campaigns with other marketing channels to amplify results?"
+      ],
+      weaknesses: [
+        "What aspects of your content approval process do you think need optimization?",
+        "What tools or methodologies are you considering implementing to improve international campaign management?",
+        "How do you plan to improve your ability to balance brand control with influencer authenticity?"
+      ]
+    },
+    // Audience Understanding
+    2: {
+      strengths: [
+        "Describe a specific audience behavior insight you discovered through data analysis and how it transformed an influencer strategy.",
+        "Can you share a methodology you've developed to evaluate the emotional resonance of influencer content?",
+        "Explain how you've segmented influencer audiences to personalize messages in a specific campaign."
+      ],
+      weaknesses: [
+        "What limitations do you find in your current audience analysis methods and how do you plan to overcome them?",
+        "What training or resources are you seeking to deepen your understanding of cultural insights relevant for global audiences?",
+        "How do you plan to improve your ability to predict audience behavior?"
+      ]
+    },
+    // Authenticity Cultivation
+    3: {
+      strengths: [
+        "Describe a specific strategy you've implemented to foster genuine connections between influencers and brands.",
+        "Share an example where you handled a situation that potentially compromised authenticity perception. What actions did you take?",
+        "How have you managed to integrate commercial disclosure requirements without affecting content naturalness?"
+      ],
+      weaknesses: [
+        "What approaches are you considering to strengthen influencers' intrinsic motivation toward the brands you represent?",
+        "How do you plan to improve your authenticity-related controversy management protocols?",
+        "What resources or knowledge do you seek to better balance commercial objectives and authentic expression?"
+      ]
+    },
+    // Analysis & Optimization
+    4: {
+      strengths: [
+        "Describe an attribution model you've developed to link influencer activities with business results.",
+        "Share a specific example where data analysis allowed you to significantly optimize campaign performance.",
+        "What customized KPIs have you created to evaluate influencer campaign success beyond standard metrics?"
+      ],
+      weaknesses: [
+        "What limitations do you identify in your current analysis methods and how do you plan to overcome them?",
+        "What technologies or methodologies are you exploring to improve your attribution capabilities?",
+        "How do you plan to evolve your data-based continuous improvement processes?"
+      ]
+    },
+    // Digital Ecosystem Adaptability
+    5: {
+      strengths: [
+        "Describe an emerging trend you identified early and how you integrated it into your strategy before it became mainstream.",
+        "Share an example of how you quickly adapted a strategy in response to a significant algorithm change on a key platform.",
+        "What sources and methods do you use to stay at the forefront of innovations in the digital ecosystem?"
+      ],
+      weaknesses: [
+        "What emerging technologies are you currently studying to anticipate their impact on influencer marketing?",
+        "How do you plan to structure experimentation processes with new platforms or formats?",
+        "What resources or training do you seek to improve your adaptation speed to disruptive changes?"
+      ]
+    },
+    // Relationship Management
+    6: {
+      strengths: [
+        "Describe a brand ambassador program you've developed. What elements do you consider key to its success?",
+        "Share an example of how you transformed an initially transactional relationship into a long-term strategic alliance.",
+        "Can you describe a complex negotiation situation and how you achieved a mutually beneficial outcome?"
+      ],
+      weaknesses: [
+        "What aspects of your communication with influencers do you think need improvement?",
+        "How do you plan to evolve your long-term relationship development strategies?",
+        "What specific negotiation or conflict resolution skills are you looking to develop?"
+      ]
+    }
+  };
+  
+  return questionsBank[dimensionIndex]?.[type] || [];
+}
+
+// Function to get a collection of 10 sample interview questions
+function getSampleInterviewQuestions(dimensionScores) {
+  let allQuestions = [];
+  
+  // First, get questions from areas of strength
+  dimensionScores.forEach((score, index) => {
+    if (score >= 70) {
+      const questions = getInterviewQuestionsForDimension(index, 'strengths');
+      if (questions.length > 0) {
+        allQuestions.push(...questions.map(q => ({
+          dimension: index,
+          question: q
+        })));
+      }
+    }
+  });
+  
+  // If we don't have enough from strengths, add some from weaknesses
+  if (allQuestions.length < 10) {
+    dimensionScores.forEach((score, index) => {
+      if (score < 60) {
+        const questions = getInterviewQuestionsForDimension(index, 'weaknesses');
+        if (questions.length > 0) {
+          allQuestions.push(...questions.map(q => ({
+            dimension: index,
+            question: q
+          })));
+        }
+      }
+    });
+  }
+  
+  // Shuffle and take the first 10
+  const shuffled = allQuestions.sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, 10);
+}
+
 function Results() {
   const [results, setResults] = useState(null);
   const [error, setError] = useState(null);
@@ -562,6 +698,9 @@ function Results() {
   }
 
   const dimensionNames = dimensions.map(d => d.title);
+  
+  // Get sample interview questions for the interview preparation section
+  const sampleQuestions = getSampleInterviewQuestions(results.dimensionScores);
 
   // Function to determine the competency level of each dimension
   const getDimensionLevel = (score) => {
@@ -571,105 +710,6 @@ function Results() {
     if (score <= 80) return { level: 4, name: "Advanced" };
     return { level: 5, name: "Expert" };
   };
-
-  // Función helper para obtener preguntas de entrevista
-  function getInterviewQuestionsForDimension(dimensionIndex, type) {
-    const questionsBank = {
-      // Selección Estratégica de Influencers
-      0: {
-        strengths: [
-          "Describa un proceso específico que haya desarrollado para evaluar la alineación de valores entre influencers y una marca de consumo masivo.",
-          "Cuénteme sobre una ocasión en que rechazó trabajar con un influencer popular debido a preocupaciones de congruencia con la marca.",
-          "¿Puede compartir una metodología específica que haya implementado para analizar la audiencia de un influencer más allá de las demografías básicas?"
-        ],
-        weaknesses: [
-          "¿Qué recursos o formación considera necesarios para mejorar su capacidad de evaluación de congruencia influencer-marca?",
-          "¿Cómo planea desarrollar un enfoque más sistemático para la verificación de autenticidad de influencers?",
-          "Si tuviera acceso a herramientas analíticas avanzadas, ¿qué nuevos criterios implementaría en su proceso de selección?"
-        ]
-      },
-      // Gestión de Contenido y Campañas
-      1: {
-        strengths: [
-          "Comparta un ejemplo de briefing que considere particularmente exitoso. ¿Qué elementos clave incluyó que facilitaron contenido auténtico?",
-          "Describa una situación compleja de coordinación de campaña multinacional. ¿Qué sistemas implementó para garantizar coherencia?",
-          "¿Cómo ha integrado específicamente campañas de influencers con otros canales de marketing para amplificar resultados?"
-        ],
-        weaknesses: [
-          "¿Qué aspectos de su proceso de aprobación de contenido considera que necesitan optimización?",
-          "¿Qué herramientas o metodologías está considerando implementar para mejorar la gestión de campañas internacionales?",
-          "¿Cómo planea mejorar su capacidad para balancear el control de marca con la autenticidad del influencer?"
-        ]
-      },
-      // Comprensión de Audiencias
-      2: {
-        strengths: [
-          "Describa un insight específico sobre comportamiento de audiencia que descubrió a través de análisis de datos.",
-          "¿Puede compartir una metodología que haya desarrollado para evaluar la resonancia emocional del contenido de influencers?",
-          "Explique cómo ha segmentado audiencias de influencers para personalizar mensajes en una campaña específica."
-        ],
-        weaknesses: [
-          "¿Qué limitaciones encuentra en sus métodos actuales de análisis de audiencia y cómo planea superarlas?",
-          "¿Qué formación o recursos está buscando para profundizar su comprensión de insights culturales?",
-          "¿Cómo planea mejorar su capacidad de predicción del comportamiento de audiencias?"
-        ]
-      },
-      // Cultivo de Autenticidad y Transparencia
-      3: {
-        strengths: [
-          "Describa una estrategia específica que haya implementado para fomentar conexiones genuinas entre influencers y marcas.",
-          "Comparta un ejemplo donde haya manejado una situación que potencialmente comprometía la percepción de autenticidad.",
-          "¿Cómo ha logrado integrar requisitos de divulgación comercial sin afectar la naturalidad del contenido?"
-        ],
-        weaknesses: [
-          "¿Qué enfoques está considerando para fortalecer la motivación intrínseca de los influencers hacia las marcas?",
-          "¿Cómo planea mejorar sus protocolos de gestión de controversias relacionadas con autenticidad?",
-          "¿Qué recursos o conocimientos busca adquirir para equilibrar mejor los objetivos comerciales y la expresión auténtica?"
-        ]
-      },
-      // Análisis y Optimización
-      4: {
-        strengths: [
-          "Describa un modelo de atribución que haya desarrollado para vincular actividades de influencers con resultados de negocio.",
-          "Comparta un ejemplo específico donde el análisis de datos le permitió optimizar el rendimiento de una campaña.",
-          "¿Qué KPIs personalizados ha creado para evaluar el éxito de campañas de influencers más allá de métricas estándar?"
-        ],
-        weaknesses: [
-          "¿Qué limitaciones identifica en sus métodos actuales de análisis y cómo planea superarlas?",
-          "¿Qué tecnologías o metodologías está explorando para mejorar sus capacidades de atribución?",
-          "¿Cómo planea evolucionar sus procesos de mejora continua basados en datos?"
-        ]
-      },
-      // Adaptabilidad al Ecosistema Digital
-      5: {
-        strengths: [
-          "Describa una tendencia emergente que identificó tempranamente y cómo la integró en su estrategia.",
-          "Comparta un ejemplo de cómo adaptó rápidamente una estrategia ante un cambio significativo de algoritmo.",
-          "¿Qué fuentes y métodos utiliza para mantenerse a la vanguardia de innovaciones en el ecosistema digital?"
-        ],
-        weaknesses: [
-          "¿Qué tecnologías emergentes está estudiando actualmente para anticipar su impacto en el influencer marketing?",
-          "¿Cómo planea estructurar procesos de experimentación con nuevas plataformas o formatos?",
-          "¿Qué recursos o formación busca para mejorar su velocidad de adaptación ante cambios disruptivos?"
-        ]
-      },
-      // Gestión de Relaciones
-      6: {
-        strengths: [
-          "Describa un programa de embajadores de marca que haya desarrollado. ¿Qué elementos considera clave para su éxito?",
-          "Comparta un ejemplo de cómo transformó una relación inicialmente transaccional en una alianza estratégica.",
-          "¿Puede describir una situación compleja de negociación y cómo logró un resultado mutuamente beneficioso?"
-        ],
-        weaknesses: [
-          "¿Qué aspectos de su comunicación con influencers considera que necesitan mejora?",
-          "¿Cómo planea evolucionar sus estrategias de desarrollo de relaciones a largo plazo?",
-          "¿Qué habilidades específicas de negociación o resolución de conflictos está buscando desarrollar?"
-        ]
-      }
-    };
-    
-    return questionsBank[dimensionIndex]?.[type] || [];
-  }
 
   return (
     <div className="min-h-screen font-sans bg-gray-50">
@@ -737,10 +777,10 @@ function Results() {
                 Detailed Dimensions
               </button>
               <button 
-                className={`px-4 py-2 font-semibold text-sm whitespace-nowrap ${activeTab === 'recommendations' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
-                onClick={() => setActiveTab('recommendations')}
+                className={`px-4 py-2 font-semibold text-sm whitespace-nowrap ${activeTab === 'interview' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
+                onClick={() => setActiveTab('interview')}
               >
-                Recommendations
+                Interview Preparation
               </button>
               <button 
                 className={`px-4 py-2 font-semibold text-sm whitespace-nowrap ${activeTab === 'resources' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
@@ -867,28 +907,93 @@ function Results() {
               </div>
             )}
             
-            {activeTab === 'recommendations' && (
+            {activeTab === 'interview' && (
               <div>
-                <h2 className="text-2xl font-bold mb-6">{results.recommendations.title}</h2>
+                <h2 className="text-2xl font-bold mb-6">Interview Preparation</h2>
+                
+                {/* General Tips Section */}
                 <Card className="mb-8 bg-blue-50 border-blue-200">
                   <CardContent className="p-6">
-                    <p className="text-lg mb-6">{results.recommendations.description}</p>
+                    <h3 className="text-xl font-bold mb-4">General Tips</h3>
                     <div className="space-y-4">
-                      {results.recommendations.generalRecommendations.map((rec, index) => (
-                        <div key={index} className="flex items-start gap-4">
-                          <div className="flex-shrink-0">
-                            <div className="rounded-full bg-blue-600 w-8 h-8 flex items-center justify-center text-white">
-                              {index + 1}
-                            </div>
-                          </div>
-                          <p className="text-lg">{rec}</p>
-                        </div>
-                      ))}
+                      <p className="text-lg">
+                        During your interview, you'll need to demonstrate the strengths you've claimed in this self-assessment.
+                        The following tips will help you prepare effectively:
+                      </p>
+                      <div className="p-4 bg-white rounded-lg">
+                        <ul className="space-y-3">
+                          <li className="flex items-start gap-2">
+                            <div className="mt-1 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div>
+                            <span>Prepare concrete examples that demonstrate your strengths in the areas where you scored highest.</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <div className="mt-1 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div>
+                            <span>Reflect on your development plan for improvement areas and be ready to explain how you intend to address them.</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <div className="mt-1 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div>
+                            <span>Research the latest trends in influencer marketing to demonstrate your interest and industry knowledge.</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <div className="mt-1 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div>
+                            <span>Use the STAR method (Situation, Task, Action, Result) to structure your responses to behavioral questions.</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <div className="mt-1 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div>
+                            <span>Prepare questions that demonstrate your strategic thinking and understanding of the company's influencer marketing goals.</span>
+                          </li>
+                        </ul>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
                 
-                <div className="mt-8">
+                {/* Sample Interview Questions Section */}
+                <Card className="mb-6 bg-yellow-50 border-yellow-200">
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-bold mb-4">Sample Interview Questions</h3>
+                    <p className="text-lg mb-4">
+                      Based on your assessment results, here are 10 questions you might be asked during your interview:
+                    </p>
+                    
+                    <div className="space-y-4 mt-6">
+                      {sampleQuestions.map((item, index) => (
+                        <div key={`question-${index}`} className="p-4 bg-white rounded-lg border-l-4 border-blue-500">
+                          <p className="font-medium">{index + 1}. {item.question}</p>
+                          <p className="text-sm text-gray-600 mt-1">Dimension: {dimensions[item.dimension].title}</p>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="mt-8 p-4 bg-blue-100 rounded-lg">
+                      <h4 className="font-bold mb-2">Preparation Strategy:</h4>
+                      <p className="mb-3">
+                        For each question above:
+                      </p>
+                      <ol className="list-decimal ml-5 space-y-2">
+                        <li>Write down specific examples from your experience</li>
+                        <li>Practice your answers aloud to ensure clarity and conciseness</li>
+                        <li>Prepare supporting evidence to back up your claims</li>
+                        <li>Consider how your approach aligns with the company's brand and values</li>
+                      </ol>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+            
+            {activeTab === 'resources' && (
+              <div>
+                <h2 className="text-2xl font-bold mb-6">Recommended Resources</h2>
+                
+                <div className="mb-8">
+                  <p className="text-lg mb-4">
+                    Based on your results, we've selected specific resources that will help you develop your professional capabilities as an Influencer Manager.
+                  </p>
+                </div>
+                
+                {/* Specific Recommendations by Dimension (moved from Recommendations tab) */}
+                <div className="mt-8 mb-10">
                   <h3 className="text-xl font-bold mb-4">Specific Recommendations by Dimension</h3>
                   <div className="space-y-6">
                     {dimensions.map((dimension, idx) => {
@@ -932,73 +1037,6 @@ function Results() {
                       );
                     })}
                   </div>
-                </div>
-                
-                <div className="mt-10">
-                  <h3 className="text-xl font-bold mb-4">Preparación para la Entrevista</h3>
-                  <Card className="mb-6 bg-yellow-50 border-yellow-200">
-                    <CardContent className="p-6">
-                      <p className="text-lg mb-4">
-                        Durante la entrevista, deberás ser capaz de explicar y demostrar las fortalezas que has declarado en esta autoevaluación.
-                        Aquí hay algunas preguntas que podrían hacerte basadas en tus resultados:
-                      </p>
-                      
-                      <div className="space-y-6 mt-6">
-                        {dimensions.map((dimension, idx) => {
-                          const score = results.dimensionScores[idx];
-                          if (score >= 70) {
-                            const dimQuestions = getInterviewQuestionsForDimension(idx, 'strengths');
-                            if (dimQuestions.length > 0) {
-                              return (
-                                <div key={`interview-${idx}`} className="border-l-4 border-green-500 pl-4 py-2">
-                                  <h4 className="font-bold text-lg mb-2">{dimension.title}</h4>
-                                  <ul className="space-y-3">
-                                    {dimQuestions.slice(0, 2).map((question, qIdx) => (
-                                      <li key={`q-${idx}-${qIdx}`} className="flex items-start gap-2">
-                                        <div className="mt-1 w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></div>
-                                        <span>{question}</span>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              );
-                            }
-                          }
-                          return null;
-                        }).filter(Boolean)}
-                      </div>
-                      
-                      <div className="mt-8 p-4 bg-gray-100 rounded-lg">
-                        <h4 className="font-bold mb-2">Consejos Generales:</h4>
-                        <ul className="space-y-2">
-                          <li className="flex items-start gap-2">
-                            <div className="mt-1 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div>
-                            <span>Prepara ejemplos concretos que demuestren tus fortalezas en las áreas donde obtuviste mejor puntuación.</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <div className="mt-1 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div>
-                            <span>Reflexiona sobre tu plan de desarrollo para las áreas de mejora y prepárate para explicar cómo piensas abordarlas.</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <div className="mt-1 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div>
-                            <span>Investiga sobre las últimas tendencias en influencer marketing para demostrar tu interés y conocimiento del sector.</span>
-                          </li>
-                        </ul>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            )}
-            
-            {activeTab === 'resources' && (
-              <div>
-                <h2 className="text-2xl font-bold mb-6">Recommended Resources</h2>
-                
-                <div className="mb-8">
-                  <p className="text-lg mb-4">
-                    Based on your results, we've selected specific resources that will help you develop your professional capabilities as an Influencer Manager.
-                  </p>
                 </div>
                 
                 {/* Prioritize dimensions with low scores */}
