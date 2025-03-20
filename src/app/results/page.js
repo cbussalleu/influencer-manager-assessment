@@ -1083,4 +1083,3 @@ export default function ResultsPage() {
     </Suspense>
   );
 }
-```
