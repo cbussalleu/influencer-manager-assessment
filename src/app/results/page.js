@@ -6,6 +6,22 @@ import { Button } from "@/components/ui/button";
 import { useSearchParams } from 'next/navigation';
 import { ArrowRight, BookOpen, Download, ExternalLink, BarChart, Users, Brain, Code, Heart, Target, MessageCircle } from 'lucide-react';
 
+// Function to adjust scores by 40% but cap at 100%
+function adjustScores(scores) {
+  if (!scores || !Array.isArray(scores)) return [0, 0, 0, 0, 0, 0, 0];
+  
+  return scores.map(score => {
+    // Convert to number if it's a string
+    const numScore = typeof score === 'string' ? parseFloat(score) : score;
+    
+    // Add 40% to the score (multiply by 1.4)
+    const adjustedScore = numScore * 1.4;
+    
+    // Cap at 100
+    return Math.min(adjustedScore, 100);
+  });
+}
+
 // Radar chart to visualize dimensions
 const RadarChart = ({ scores, labels }) => {
   // This is a simplified visualization using CSS transformations
@@ -536,18 +552,18 @@ function Results() {
             const data = await response.json();
             console.log('Results data from API:', data);
             
-            // Format data more robustly
+            // Format data more robustly and adjust scores by 40%
             const processedResults = {
-              totalScore: Number(data.totalScore || data.total_score || 0).toFixed(1),
+              totalScore: Math.min(Number(data.totalScore || data.total_score || 0) * 1.4, 100).toFixed(1),
               masteryLevel: data.masteryLevel || 
                 (typeof data.mastery_level === 'string' 
                   ? JSON.parse(data.mastery_level) 
                   : { description: 'Not available', level: 0 }),
-              dimensionScores: Array.isArray(data.dimensionScores) 
+              dimensionScores: adjustScores(Array.isArray(data.dimensionScores) 
                 ? data.dimensionScores 
                 : (data.dimension_scores 
                   ? JSON.parse(data.dimension_scores) 
-                  : [0, 0, 0, 0, 0, 0, 0]),
+                  : [0, 0, 0, 0, 0, 0, 0])),
               recommendations: data.recommendations || 
                 (typeof data.recommendations === 'string' 
                   ? JSON.parse(data.recommendations) 
@@ -605,14 +621,15 @@ function Results() {
         // - For "Content Management": briefing_development (25%), control_authenticity_balance (30%), etc.
         // - And so on for each skill, as defined in the assessment system documentation
 
+        // Adjust mock scores by 40% for better showcase
         const mockData = {
-          totalScore: 64.5,
+          totalScore: Math.min(64.5 * 1.4, 100),
           masteryLevel: {
             level: 4,
             description: "Advanced: Advanced level with sophisticated methodologies and proactive approach",
             recommendations: "To reach the expert level, develop innovation and transformational leadership capabilities in influencer marketing"
           },
-          dimensionScores: [74, 57, 68, 59, 38, 71, 85],
+          dimensionScores: adjustScores([74, 57, 68, 59, 38, 71, 85]),
           userName: "John Smith",
           userEmail: "john.smith@example.com",
           recommendations: {
