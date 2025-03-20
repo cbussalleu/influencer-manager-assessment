@@ -1,7 +1,3 @@
-# Código Completo para src/app/results/page.js
-
-A continuación tienes el código completo del archivo para copiar y pegar:
-
 ```javascript
 'use client';
 
