@@ -45,7 +45,6 @@ function processAnswers(formResponse) {
       console.log('Processing complete form response');
       
       // Mapear las respuestas a puntajes según la estructura de tu formulario
-      // Esto es un ejemplo - ajusta según tus preguntas y lógica específica
       const scores = {};
       const rawScores = [];
       
@@ -100,7 +99,6 @@ function processAnswers(formResponse) {
       console.log('No complete form data, using sample calculation');
       
       // Si no hay datos completos, fallback a un cálculo simple
-      // Esto es temporal - deberías implementar la lógica real
       return sampleCalculation();
     }
   } catch (error) {
@@ -249,8 +247,21 @@ function getDimensionName(index) {
 
 // Extracción de datos de usuario de los parámetros GET
 function extractUserDataFromParams(searchParams) {
-  let userName = searchParams.get('name') || searchParams.get('user_name') || 'Anonymous User';
-  let userEmail = searchParams.get('email') || searchParams.get('user_email') || '';
+  let nombre = searchParams.get('nombre') || '';
+  let apellido = searchParams.get('apellido') || '';
+  let userEmail = searchParams.get('email') || '';
+  
+  // Combinar nombre y apellido si están disponibles
+  let userName = '';
+  if (nombre && apellido) {
+    userName = `${nombre} ${apellido}`;
+  } else if (nombre) {
+    userName = nombre;
+  } else if (apellido) {
+    userName = apellido;
+  } else {
+    userName = 'Anonymous User';
+  }
   
   return { userName, userEmail };
 }
@@ -268,9 +279,12 @@ export async function GET(request) {
     
     console.log('Processing with response ID:', response_id);
     
+    // Extraer datos del usuario de los parámetros
+    let userData = extractUserDataFromParams(searchParams);
+    console.log('User data from params:', userData);
+    
     // Intentar obtener datos completos de Typeform
     const typeformResponse = await fetchTypeformResponse(response_id);
-    let userData = extractUserDataFromParams(searchParams);
     
     // Si tenemos datos de Typeform, extraer nombre y email
     if (typeformResponse) {
@@ -278,25 +292,34 @@ export async function GET(request) {
       
       // Extraer nombre y email de las respuestas si están disponibles
       if (typeformResponse.answers) {
+        let nombre = '';
+        let apellido = '';
+        let email = '';
+        
         for (const answer of typeformResponse.answers) {
-          if (answer.type === 'text' || answer.type === 'email') {
-            // Buscar preguntas de nombre o email basado en el título o ref
-            const questionId = answer.field.id;
-            const questionRef = answer.field.ref;
-            
-            // Aquí necesitarías identificar las preguntas específicas de nombre y email
-            // basado en los IDs o refs de tu formulario
-            if (questionRef === 'nombre_ref' || questionId === 'nombre_id') {
-              userData.userName = answer.text || userData.userName;
-            } else if (questionRef === 'email_ref' || questionId === 'email_id' || answer.type === 'email') {
-              userData.userEmail = answer.email || answer.text || userData.userEmail;
-            }
+          const questionId = answer.field.id;
+          
+          if (questionId === 'IDP4ALFkG1Y0' && answer.text) {
+            nombre = answer.text;
+          } else if (questionId === 'CcEVZii0MfJF' && answer.text) {
+            apellido = answer.text;
+          } else if (questionId === '85bNk360ZwTF' && (answer.email || answer.text)) {
+            email = answer.email || answer.text;
           }
+        }
+        
+        // Combinar nombre y apellido
+        if (nombre || apellido) {
+          userData.userName = `${nombre} ${apellido}`.trim();
+        }
+        
+        if (email) {
+          userData.userEmail = email;
         }
       }
     }
     
-    console.log('User data:', userData);
+    console.log('Final user data:', userData);
     
     // Procesar respuestas
     const processedResults = processAnswers(typeformResponse);
